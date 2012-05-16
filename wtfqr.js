@@ -29,7 +29,7 @@ app.configure('production', function(){
 });  
 
 // Routes  
-
+  
 app.get('/', function(req, res){
 
     encoder.toDataURL('i am a pony!', function(err, png){
