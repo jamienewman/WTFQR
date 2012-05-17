@@ -7,9 +7,11 @@ var express = require('express')
   , routes = require('./routes')
   , encoder = require('qrcode')
   , stylus =  require('stylus')
-  , nib = require('nib');
-  
-var app = module.exports = express.createServer();
+  , nib = require('nib')
+  , io = require('socket.io');
+
+var app = express.createServer()
+  , io = io.listen(app);
 
 // Configuration
 
@@ -27,6 +29,7 @@ app.configure(function(){
 });
 
 // Allows for the use of nib plugin for Stylus -- gradient, box-shadow etc mixins
+
 function compile(str, path){
   return stylus(str)
     .set('filename', path)
@@ -60,4 +63,14 @@ app.get('/', function(req, res){
 
 app.listen(3000, function(){
   console.log("WTFQR server listening on port %d in %s mode", app.address().port, app.settings.env);
+});
+
+
+// Socket.io
+
+io.sockets.on('connection', function (socket){
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function(data){
+    console.log(data);
+  });
 });
