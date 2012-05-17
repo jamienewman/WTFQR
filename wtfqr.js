@@ -5,8 +5,10 @@
 
 var express = require('express')
   , routes = require('./routes')
-  , encoder = require('qrcode');
-
+  , encoder = require('qrcode')
+  , stylus =  require('stylus')
+  , nib = require('nib');
+  
 var app = module.exports = express.createServer();
 
 // Configuration
@@ -16,9 +18,22 @@ app.configure(function(){
   app.set('view engine', 'jade');
   app.use(express.bodyParser());
   app.use(express.methodOverride());
+  app.use(stylus.middleware({
+      src: __dirname + '/public',
+      compile: compile
+    }));
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 });
+
+// Allows for the use of nib plugin for Stylus -- gradient, box-shadow etc mixins
+function compile(str, path){
+  return stylus(str)
+    .set('filename', path)
+    .set('compress', true)
+    .use(nib())
+    .import('nib');
+}
 
 app.configure('development', function(){
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
