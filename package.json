@@ -1,13 +1,13 @@
 {
-    "name": "WTFQR"
-  , "version": "0.0.1"
-  , "private": true
-  , "dependencies": {
-      "express": "2.5.8"
-    , "jade": ">= 0.26.0"
-    , "stylus": "0.27.0"
-    , "nib": ">= 0.4.1"
-    , "qrcode": "0.1.1"
-    , "nodemon": "0.6.18"
+  "name": "WTFQR",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "2.5.8",
+    "jade": ">= 0.26.0",
+    "stylus": "0.27.0",
+    "nib": ">= 0.4.1",
+    "qrcode": "0.1.1",
+    "socket.io": "~0.9.6"
   }
 }
