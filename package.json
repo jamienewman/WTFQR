@@ -2,6 +2,12 @@
   "name": "WTFQR",
   "version": "0.0.1",
   "private": true,
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/jamienewman/WTFQR"
+    }
+  ],
   "dependencies": {
     "express": "2.5.8",
     "jade": ">= 0.26.0",
@@ -9,5 +15,21 @@
     "nib": ">= 0.4.1",
     "qrcode": "0.1.1",
     "socket.io": "~0.9.6"
-  }
+  },
+  "bugs": {
+    "name": "https://github.com/jamienewman/WTFQR/issues"
+  },
+  "engine": "node",
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  },
+  "author": "",
+  "description": "A multiplayer game utilising a mobile device/s as inputs and the browser/s as the display",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jamienewman/WTFQR.git"
+  },
+  "main": "wtfqr.js"
 }
