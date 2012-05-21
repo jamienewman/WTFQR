@@ -12,188 +12,137 @@ var WTF = WTF || {};
 WTF.socket = io.connect('http://localhost');
 
     
-WTF.socket.on('news', function (data) {
-    console.log(data);
-    WTF.socket.emit('my other event', { my: 'data' });
+WTF.socket.on('connect', function (data) {
+
+
+    WTF.socket.emit('setChannel', {
+    	'channelName': 'Race'
+    });
+
+
+    WTF.socket.on('raceData', function(data){
+
+    	console.log(data);
+
+    	if (WTF.finished){
+			return;
+		}
+
+		if(data.foot === 'left'){
+			WTF.runner1.src = 'img/runner1.png';
+		}
+		
+		if (data.foot === 'right') {
+			WTF.runner1.src = 'img/runner1_2.png';
+		}
+
+		WTF.r1x += WTF.steps;
+
+    });
+
+
 });
 
 
-WTF.game = function(){
+WTF.controls = function(){
+
+	$('.controls a').on('click', function(evt){
+
+		evt.preventDefault();
+
+		WTF.socket.emit('buttons', {'foot': $(this).attr('class') });
+
+	});	
+
+};
 
 
-	var canvas,  
-		ctx,
-		steps = 10,
-		r1x = 10,
-		r1y = 80,
-		r2x = 10,
-		r2y = 170,
-		width = 600,
-		height = 241,
-		background = new Image(),
-		runner1 = new Image(),
-		runner2 = new Image(),
-		finished = false,
-		key1 = false,
-		key2 = false,
-		key3 = false,
-		key4 = false,
-		timer = setTimeout(onTimeout, 4000),
-		framenumber = 0,
-		countdown = 4;
+
+WTF.gameInit = function(){
+
+	WTF.animateCanvas();
+
+};
 
 
-	var player1name = prompt('Player 1 - Enter your name');
-	var player2name = prompt('Player 2 - Enter your name');
+WTF.animateCanvas = function(){
+
+	requestAnimationFrame(WTF.animateCanvas);
+	WTF.drawCanvas();	
+
+};
 
 
-	background.src = 'img/bg.gif';
-	runner1.src = 'img/runner1.png'
-	runner2.src = 'img/runner2.png'
+WTF.clearCanvas = function() {
+	WTF.ctx.clearRect(0, 0, WTF.width, WTF.height);
+};
 
 
-	function init() {
-		canvas = document.getElementById("canvas");
-		ctx = canvas.getContext("2d");
-		animate();
-		//return setInterval(draw, 10);
+WTF.rect = function(x,y,w,h) {
+	WTF.ctx.beginPath();
+	WTF.ctx.rect(x,y,w,h);
+	WTF.ctx.closePath();
+	WTF.ctx.fill();
+	WTF.ctx.stroke();
+};
+
+
+WTF.drawCanvas = function(){
+
+	WTF.clearCanvas();
+
+	WTF.rect(0,0, WTF.width, WTF.height);
+	
+	WTF.ctx.drawImage(WTF.background, 0, 0);
+		
+	WTF.framenumber++;
+	
+	if (WTF.framenumber % 100 === 0 && WTF.countdown){
+		WTF.countdown--;
 	}
 
-	function animate(){
-		requestAnimationFrame(animate);
-		draw();
+	if (WTF.countdown >= 2){
+		WTF.ctx.font = "bold 40px sans-serif";
+		WTF.ctx.fillText(WTF.countdown-1, WTF.width / 2, 50);
+		WTF.ctx.textAlign = "center";
 	}
 
-	if(window.G_vmlCanvasManager){
-		document.getElementById('canvas');
-		ctc = canvas.getContext(canvas);
+	if (WTF.countdown === 1){
+		WTF.ctx.font = "bold 40px sans-serif";
+		WTF.ctx.fillText("GO", WTF.width / 2, 50);
+		WTF.ctx.textAlign = "center";
 	}
 
-	function rect(x,y,w,h) {
-		ctx.beginPath();
-		ctx.rect(x,y,w,h);
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
+	WTF.ctx.drawImage(WTF.runner1, WTF.r1x, WTF.r1y);
+	WTF.ctx.drawImage(WTF.runner2, WTF.r2x, WTF.r2y);
+
+	if (WTF.r1x >= 566) {
+		WTF.finished = true;
+		WTF.ctx.clearRect(0, 0, WTF.width, WTF.height);
+		WTF.rect(0, 0, WTF.width, WTF.height);
+
+		WTF.ctx.drawImage(WTF.background, 0, 0);
+		WTF.ctx.drawImage(WTF.runner1, WTF.r1x, WTF.r1y);
+		WTF.ctx.drawImage(WTF.runner2, WTF.r2x, WTF.r2y);
+		
+		WTF.ctx.font = "bold 20px sans-serif";
+		WTF.ctx.fillText("The Winner is " + WTF.player1name, WTF.width / 2, 135);
+		WTF.ctx.textAlign = "center";
 	}
 
-	function clearCanvas() {
-		ctx.clearRect(0, 0, width, height);
+	if (WTF.r2x >= 566) {
+		WTF.finished = true;
+		WTF.ctx.clearRect(0, 0, WTF.width, WTF.height);
+		WTF.rect(0, 0, WTF.width, WTF.height);
+		
+		WTF.ctx.drawImage(WTF.background, 0, 0);
+		WTF.ctx.drawImage(WTF.runner1, WTF.r1x, WTF.r1y);
+		WTF.ctx.drawImage(WTF.runner2, WTF.r2x, WTF.r2y);
+		
+		WTF.ctx.font = "bold 20px sans-serif";
+		WTF.ctx.fillText("The Winner is " + WTF.player2name, width / 2, 135);
+		WTF.ctx.textAlign = "center";
 	}
-
-	function doKeyDown(evt){	
-		if (finished){
-			return
-		}
-		if (evt.keyCode === 90) {
-			runner1.src = 'img/runner1.png';
-			if(key1){
-				key1 = key2 = false;
-			}
-			key1 = true;
-		}
-		if (evt.keyCode === 88) {
-			runner1.src = 'img/runner1_2.png';
-			key2 = true;
-		}
-		if(key1 && key2){
-			//move the guy
-			if (r1x + steps < width) {
-				r1x += steps; 
-			}
-			key1 = key2 = false;
-		}
-		if (evt.keyCode === 78) {
-			runner2.src = 'img/runner2.png';
-			if(key3){
-				key3 = key4 = false;
-			}
-			key3 = true;
-		}
-		if (evt.keyCode === 77) {
-			runner2.src = 'img/runner2_2.png';
-			key4 = true;
-		}
-		if(key3 && key4){
-			//move the guy
-			if (r2x + steps < width) {
-				r2x += steps; 
-			}
-			key3 = key4 = false;
-		}
-	}
-
-	function names() {
-		ctx.font = "bold 20px sans-serif";
-		ctx.fillText(player1name, 35, 135);
-		ctx.font = "bold 20px sans-serif";
-		ctx.fillText(player2name, 35, 225);
-	}
-
-
-	function draw() {
-		clearCanvas();
-		rect(0,0,width,height);
-		ctx.drawImage(background,0,0);
-		names();
-		framenumber++;
-		if (framenumber%100 === 0 && countdown){
-			countdown--;
-		}
-		if (countdown >= 2){
-			ctx.font = "bold 40px sans-serif";
-			ctx.fillText(countdown-1, width / 2, 50);
-			ctx.textAlign = "center";
-		}
-		if (countdown === 1){
-			ctx.font = "bold 40px sans-serif";
-			ctx.fillText("GO", width / 2, 50);
-			ctx.textAlign = "center";
-		}
-		ctx.drawImage(runner1,r1x,r1y);
-		ctx.drawImage(runner2,r2x,r2y);
-		if (r1x >= 566) {
-			finished = true;
-			document.getElementById('audio1').pause();
-			ctx.clearRect(0, 0, width, height);
-			rect(0,0,width,height);
-			ctx.drawImage(background,0,0);
-			ctx.drawImage(runner1,r1x,r1y);
-			ctx.drawImage(runner2,r2x,r2y);
-			ctx.font = "bold 20px sans-serif";
-			ctx.fillText("The Winner is " + player1name, width / 2, 135);
-			ctx.textAlign = "center";
-		}
-		if (r2x >= 566) {
-			finished = true;
-			document.getElementById('audio1').pause();
-			ctx.clearRect(0, 0, width, height);
-			rect(0,0,width,height);
-			ctx.drawImage(background,0,0);
-			ctx.drawImage(runner1,r1x,r1y);
-			ctx.drawImage(runner2,r2x,r2y);
-			ctx.font = "bold 20px sans-serif";
-			ctx.fillText("The Winner is " + player2name, width / 2, 135);
-			ctx.textAlign = "center";
-		}
-	}
-
-	/* Initilisation
-	---------------------------------------*/
-
-	// window.focus();
-
-	// document.getElementById('audio1').play();
-
-	init();
-
-	function onTimeout() {
-		window.addEventListener('keydown',doKeyDown,true);
-	}
-
-	// document.getElementById('audio1').addEventListener('ended', function(){
-	//	this.currentTime = 0;
-	// }, false);	
 
 };
 
@@ -224,7 +173,37 @@ WTF.game = function(){
 }());
 
 
+
 if( window.location.pathname === '/race' ){
-	WTF.game();
+
+	WTF.canvas = document.getElementById('canvas')
+	WTF.ctx = WTF.canvas.getContext('2d'),
+	WTF.steps = 10,
+	WTF.r1x = 10,
+	WTF.r1y = 80,
+	WTF.r2x = 10,
+	WTF.r2y = 170,
+	WTF.width = 600,
+	WTF.height = 241,
+	WTF.background = new Image(),
+	WTF.runner1 = new Image(),
+	WTF.runner2 = new Image(),
+	WTF.finished = false,
+	WTF.key1 = false,
+	WTF.key2 = false,
+	WTF.key3 = false,
+	WTF.key4 = false,
+	WTF.framenumber = 0,
+	WTF.countdown = 4;
+
+	WTF.background.src = 'img/bg.gif';
+	WTF.runner1.src = 'img/runner1.png';
+	WTF.runner2.src = 'img/runner2.png';
+
+	WTF.gameInit();
+
 }
 
+if( window.location.pathname === '/ui' ){
+	WTF.controls();
+}

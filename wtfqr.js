@@ -47,13 +47,15 @@ app.configure('production', function(){
   app.use(express.errorHandler());
 });  
 
+
 // Routes  
   
+
 app.get('/', function(req, res){
 
     console.log(req.headers.host);
 
-    encoder.toDataURL('http://' + req.headers.host + '/race', function(err, png){
+    encoder.toDataURL('http://' + req.headers.host + '/ui', function(err, png){
 
         res.render('index', { 
             title: 'WTFQR',
@@ -64,6 +66,7 @@ app.get('/', function(req, res){
   
 });
 
+
 app.get('/race', function(req, res){
 
   res.render('race', {
@@ -71,6 +74,16 @@ app.get('/race', function(req, res){
   });
 
 });
+
+
+app.get('/ui', function(req, res){
+
+  res.render('mobileui', {
+    title: 'Win The Race!!'
+  });
+
+});
+
 
 app.listen(3000, function(){
   console.log("WTFQR server listening on port %d in %s mode", app.address().port, app.settings.env);
@@ -80,8 +93,16 @@ app.listen(3000, function(){
 // Socket.io
 
 io.sockets.on('connection', function (socket){
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function(data){
-    console.log(data);
+
+  socket.on('setChannel', function (data){
+    socket.join(data.channelName);
   });
+
+  socket.on('buttons', function (data){
+    console.log(data);
+
+    socket.broadcast.to(data.channelName).emit("raceData", data);
+
+  });
+
 });
