@@ -16,7 +16,10 @@ Run this to install dependencies:
 <code>
 cd WTFQR && npm install -d
 
-This will bring in all the necessary stuff
+This will bring in all the necessary stuff, if it fails, this is due to a dependency of node-canvas:
+
+<code>
+brew install cairo
 
 ###Running the app###
 
