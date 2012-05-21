@@ -10,6 +10,7 @@ var express = require('express')
   , nib = require('nib')
   , io = require('socket.io');
 
+
 var app = express.createServer()
   , io = io.listen(app);
 
@@ -50,7 +51,9 @@ app.configure('production', function(){
   
 app.get('/', function(req, res){
 
-    encoder.toDataURL('i am a pony!', function(err, png){
+    console.log(req.headers.host);
+
+    encoder.toDataURL('http://' + req.headers.host + '/race', function(err, png){
 
         res.render('index', { 
             title: 'WTFQR',
@@ -59,6 +62,14 @@ app.get('/', function(req, res){
     
     });
   
+});
+
+app.get('/race', function(req, res){
+
+  res.render('race', {
+    title: 'WTFQR Race'
+  });
+
 });
 
 app.listen(3000, function(){

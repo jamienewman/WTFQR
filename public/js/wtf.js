@@ -224,4 +224,7 @@ WTF.game = function(){
 }());
 
 
-WTF.game();
+if( window.location.pathname === '/race' ){
+	WTF.game();
+}
+
