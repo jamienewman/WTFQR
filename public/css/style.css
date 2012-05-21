@@ -7,3 +7,4 @@ a img{border:none}
 html,body{min-height:100%}
 body{padding:50px;font:14px "Lucida Grande",Helvetica,Arial,sans-serif;background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #fff), color-stop(1, #c9c9c9));background:-webkit-linear-gradient(top, #fff 0%, #c9c9c9 100%);background:-moz-linear-gradient(top, #fff 0%, #c9c9c9 100%);background:-o-linear-gradient(top, #fff 0%, #c9c9c9 100%);background:-ms-linear-gradient(top, #fff 0%, #c9c9c9 100%);background:linear-gradient(top, #fff 0%, #c9c9c9 100%)}
 a{color:#00b7ff}
+#canvas{width:620px;height:241px}

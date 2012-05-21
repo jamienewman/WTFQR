@@ -1,16 +1,11 @@
 h1= title
 p Welcome to #{title}
 img(src="#{image}", id="qr")
-canvas#canvas
+canvas#canvas(width="600", height="241")
 
 
 
 
 
 script(src="/socket.io/socket.io.js")
-script
-  var socket = io.connect('http://localhost');
-  socket.on('news', function (data) {
-    console.log(data);
-    socket.emit('my other event', { my: 'data' });
-  });
+script(src="/js/wtf.js")
