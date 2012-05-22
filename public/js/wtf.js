@@ -1,3 +1,30 @@
+// requestAnimationFrame shim
+(function(){
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+ 
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+ 
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
+
+
 /**
  * 
  * 
@@ -9,12 +36,12 @@
 var WTF = WTF || {};
 
 
-WTF.socket = io.connect('http://localhost');
+WTF.socket = io.connect( window.location.origin );
 
     
-WTF.socket.on('connect', function (data) {
+WTF.socket.on('connect', function (data){
 
-
+    
     WTF.socket.emit('setChannel', {
     	'channelName': 'Race'
     });
@@ -22,7 +49,7 @@ WTF.socket.on('connect', function (data) {
 
     WTF.socket.on('raceData', function(data){
 
-    	console.log(data);
+    	// console.log(data);
 
     	if (WTF.finished){
 			return;
@@ -32,7 +59,7 @@ WTF.socket.on('connect', function (data) {
 			WTF.runner1.src = 'img/runner1.png';
 		}
 		
-		if (data.foot === 'right') {
+		if (data.foot === 'right'){
 			WTF.runner1.src = 'img/runner1_2.png';
 		}
 
@@ -73,12 +100,12 @@ WTF.animateCanvas = function(){
 };
 
 
-WTF.clearCanvas = function() {
+WTF.clearCanvas = function(){
 	WTF.ctx.clearRect(0, 0, WTF.width, WTF.height);
 };
 
 
-WTF.rect = function(x,y,w,h) {
+WTF.rect = function(x,y,w,h){
 	WTF.ctx.beginPath();
 	WTF.ctx.rect(x,y,w,h);
 	WTF.ctx.closePath();
@@ -116,7 +143,7 @@ WTF.drawCanvas = function(){
 	WTF.ctx.drawImage(WTF.runner1, WTF.r1x, WTF.r1y);
 	WTF.ctx.drawImage(WTF.runner2, WTF.r2x, WTF.r2y);
 
-	if (WTF.r1x >= 566) {
+	if (WTF.r1x >= 566){
 		WTF.finished = true;
 		WTF.ctx.clearRect(0, 0, WTF.width, WTF.height);
 		WTF.rect(0, 0, WTF.width, WTF.height);
@@ -125,12 +152,12 @@ WTF.drawCanvas = function(){
 		WTF.ctx.drawImage(WTF.runner1, WTF.r1x, WTF.r1y);
 		WTF.ctx.drawImage(WTF.runner2, WTF.r2x, WTF.r2y);
 		
-		WTF.ctx.font = "bold 20px sans-serif";
-		WTF.ctx.fillText("The Winner is " + WTF.player1name, WTF.width / 2, 135);
-		WTF.ctx.textAlign = "center";
+		//WTF.ctx.font = "bold 20px sans-serif";
+		//WTF.ctx.fillText("The Winner is " + WTF.player1name, WTF.width / 2, 135);
+		//WTF.ctx.textAlign = "center";
 	}
 
-	if (WTF.r2x >= 566) {
+	if (WTF.r2x >= 566){
 		WTF.finished = true;
 		WTF.ctx.clearRect(0, 0, WTF.width, WTF.height);
 		WTF.rect(0, 0, WTF.width, WTF.height);
@@ -139,41 +166,17 @@ WTF.drawCanvas = function(){
 		WTF.ctx.drawImage(WTF.runner1, WTF.r1x, WTF.r1y);
 		WTF.ctx.drawImage(WTF.runner2, WTF.r2x, WTF.r2y);
 		
-		WTF.ctx.font = "bold 20px sans-serif";
-		WTF.ctx.fillText("The Winner is " + WTF.player2name, width / 2, 135);
-		WTF.ctx.textAlign = "center";
+		//WTF.ctx.font = "bold 20px sans-serif";
+		//WTF.ctx.fillText("The Winner is " + WTF.player2name, width / 2, 135);
+		//WTF.ctx.textAlign = "center";
 	}
 
 };
 
 
-(function() {
-    var lastTime = 0;
-    var vendors = ['ms', 'moz', 'webkit', 'o'];
-    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
-                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
-    }
- 
-    if (!window.requestAnimationFrame)
-        window.requestAnimationFrame = function(callback, element) {
-            var currTime = new Date().getTime();
-            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-            var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
-              timeToCall);
-            lastTime = currTime + timeToCall;
-            return id;
-        };
- 
-    if (!window.cancelAnimationFrame)
-        window.cancelAnimationFrame = function(id) {
-            clearTimeout(id);
-        };
-}());
+// Page specific functionality
 
-
-
+// Race page
 if( window.location.pathname === '/race' ){
 
 	WTF.canvas = document.getElementById('canvas')
@@ -204,6 +207,7 @@ if( window.location.pathname === '/race' ){
 
 }
 
+// Mobile ui page
 if( window.location.pathname === '/ui' ){
 	WTF.controls();
 }
