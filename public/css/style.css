@@ -15,4 +15,4 @@ h1{font-size:60px;font-weight:bold;margin:0 0 30px;text-shadow:2px 2px 3px #fff;
 .home p{font-size:24px;margin:0 0 30px;text-shadow:2px 2px 3px #fff}
 .home img{-webkit-box-shadow:0 40px 46px -6px #ccc;-moz-box-shadow:0 40px 46px -6px #ccc;box-shadow:0 40px 46px -6px #ccc;border:1px solid #fcfcfc}
 .race p{font-size:24px;margin:0 0 30px;text-shadow:2px 2px 3px #fff;text-align:center}
-.race canvas{-webkit-box-shadow:0 40px 46px -6px #ccc;-moz-box-shadow:0 40px 46px -6px #ccc;box-shadow:0 40px 46px -6px #ccc;border:1px solid #fcfcfc}
+.race canvas{-webkit-box-shadow:0 40px 46px -6px #ccc;-moz-box-shadow:0 40px 46px -6px #ccc;box-shadow:0 40px 46px -6px #ccc;border:1px solid #fcfcfc;margin:0 auto;display:block}
