@@ -49,21 +49,55 @@ WTF.socket.on('connect', function (data){
 
     WTF.socket.on('raceData', function(data){
 
-    	// console.log(data);
+    	console.log(data);
 
     	if (WTF.finished){
 			return;
 		}
 
-		if(data.foot === 'left'){
-			WTF.runner1.src = 'img/runner1.png';
-		}
-		
-		if (data.foot === 'right'){
-			WTF.runner1.src = 'img/runner1_2.png';
+		if(WTF.player1name === null){
+			WTF.player1name = data.user;
+			$('.racers').append('<p>'+WTF.player1name+'</p>')
+			return;
 		}
 
-		WTF.r1x += WTF.steps;
+		if(WTF.player2name === null){
+			WTF.player2name = data.user;
+			$('.racers').append('<p>'+WTF.player2name+'</p>')
+			return;
+		}
+
+    	if(WTF.player1name === data.user){
+
+			if(data.foot === 'left'){
+				WTF.runner1.src = 'img/runner1.png';
+			}
+			
+			if (data.foot === 'right'){
+				WTF.runner1.src = 'img/runner1_2.png';
+			}
+
+			WTF.r1x += WTF.steps;
+
+			return;
+
+    	}
+
+    	if(WTF.player2name === data.user){
+    		
+			if(data.foot === 'left'){
+				WTF.runner1.src = 'img/runner2.png';
+			}
+			
+			if (data.foot === 'right'){
+				WTF.runner1.src = 'img/runner2_2.png';
+			}
+
+			WTF.r2x += WTF.steps;
+
+			return;
+
+    	}
 
     });
 
@@ -77,7 +111,7 @@ WTF.controls = function(){
 
 		evt.preventDefault();
 
-		WTF.socket.emit('buttons', {'foot': $(this).attr('class') });
+		WTF.socket.emit('buttons', {'user': WTF.username, 'foot': $(this).attr('class') });
 
 	});	
 
@@ -152,9 +186,9 @@ WTF.drawCanvas = function(){
 		WTF.ctx.drawImage(WTF.runner1, WTF.r1x, WTF.r1y);
 		WTF.ctx.drawImage(WTF.runner2, WTF.r2x, WTF.r2y);
 		
-		//WTF.ctx.font = "bold 20px sans-serif";
-		//WTF.ctx.fillText("The Winner is " + WTF.player1name, WTF.width / 2, 135);
-		//WTF.ctx.textAlign = "center";
+		WTF.ctx.font = "bold 20px sans-serif";
+		WTF.ctx.fillText("The Winner is " + WTF.player1name, WTF.width / 2, 135);
+		WTF.ctx.textAlign = "center";
 	}
 
 	if (WTF.r2x >= 566){
@@ -166,9 +200,9 @@ WTF.drawCanvas = function(){
 		WTF.ctx.drawImage(WTF.runner1, WTF.r1x, WTF.r1y);
 		WTF.ctx.drawImage(WTF.runner2, WTF.r2x, WTF.r2y);
 		
-		//WTF.ctx.font = "bold 20px sans-serif";
-		//WTF.ctx.fillText("The Winner is " + WTF.player2name, width / 2, 135);
-		//WTF.ctx.textAlign = "center";
+		WTF.ctx.font = "bold 20px sans-serif";
+		WTF.ctx.fillText("The Winner is " + WTF.player2name, width / 2, 135);
+		WTF.ctx.textAlign = "center";
 	}
 
 };
@@ -179,7 +213,7 @@ WTF.drawCanvas = function(){
 // Race page
 if( window.location.pathname === '/race' ){
 
-	WTF.canvas = document.getElementById('canvas')
+	WTF.canvas = document.getElementById('canvas'),
 	WTF.ctx = WTF.canvas.getContext('2d'),
 	WTF.steps = 10,
 	WTF.r1x = 10,
@@ -203,11 +237,15 @@ if( window.location.pathname === '/race' ){
 	WTF.runner1.src = 'img/runner1.png';
 	WTF.runner2.src = 'img/runner2.png';
 
+	WTF.player1name = null;	
+	WTF.player2name = null;
+
 	WTF.gameInit();
 
 }
 
 // Mobile ui page
 if( window.location.pathname === '/ui' ){
+	WTF.username = prompt('Enter your name');
 	WTF.controls();
 }
