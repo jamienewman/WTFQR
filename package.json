@@ -29,9 +29,6 @@
   "engine": "node",
   "devDependencies": {},
   "optionalDependencies": {},
-  "engines": {
-    "node": "*"
-  },
   "author": "",
   "description": "A multiplayer game utilising a mobile device/s as inputs and the browser/s as the display",
   "repository": {
