@@ -8,11 +8,47 @@ var express = require('express')
   , encoder = require('qrcode')
   , stylus =  require('stylus')
   , nib = require('nib')
+  , passport = require('passport')
+  , FacebookStrategy = require('passport-facebook').Strategy
+  , TwitterStrategy = require('passport-twitter').Strategy
   , io = require('socket.io');
 
 
 var app = express.createServer()
   , io = io.listen(app);
+
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+
+passport.deserializeUser(function(obj, done) {
+  done(null, obj);
+});
+
+passport.use(new TwitterStrategy({
+    consumerKey: '6olMOiTALuonaaOkJ9sjQ',
+    consumerSecret: '2nwMhMl5ihSYo1MDqGi7B9TVQO7A7PS0pnpDF3pDc9c',
+    callbackURL: "http://JamieNewman.local:3000/auth/twitter/callback"
+  },
+  function(token, tokenSecret, profile, done){
+     process.nextTick(function () {
+      return done(null, profile);
+    });
+  }
+));
+
+passport.use(new FacebookStrategy({
+    clientID: '328866273857515',
+    clientSecret: '90a2283a9f1ead52d138c64de737710b',
+    callbackURL: "http://JamieNewman.local:3000/auth/facebook/callback"
+  },
+  function(accessToken, refreshToken, profile, done){
+    process.nextTick(function () {
+      return done(null, profile);
+    });
+  }
+));
 
 // Configuration
 
@@ -25,6 +61,10 @@ app.configure(function(){
       src: __dirname + '/public',
       compile: compile
     }));
+  app.use(express.cookieParser()); 
+  app.use(express.session({ secret: 'afhf9q8h21ejhdaskjdlasjda'}));
+  app.use(passport.initialize());
+  app.use(passport.session());
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 });
@@ -55,7 +95,7 @@ app.get('/', function(req, res){
 
     console.log(req.headers.host);
 
-    encoder.toDataURL('http://' + req.headers.host + '/ui', function(err, png){
+    encoder.toDataURL('http://' + req.headers.host + '/join', function(err, png){
 
         res.render('index', { 
             title: 'WTFQR',
@@ -66,6 +106,33 @@ app.get('/', function(req, res){
   
 });
 
+app.get('/join', function(req, res){
+  res.render('join', {
+    title: 'Join'
+  });
+});
+
+app.get('/auth/facebook', passport.authenticate('facebook', 
+    { scope: ['publish_actions', 'email'] } 
+));
+
+
+app.get('/auth/facebook/callback', 
+  passport.authenticate('facebook', { 
+      successRedirect: '/ui',
+      failureRedirect: '/join/failure' 
+  })
+);
+
+app.get('/auth/twitter', passport.authenticate('twitter'));
+
+
+app.get('/auth/twitter/callback', 
+  passport.authenticate('twitter', { 
+      successRedirect: '/ui',
+      failureRedirect: '/join/failure' 
+  })
+);
 
 app.get('/race', function(req, res){
 
@@ -89,10 +156,26 @@ app.listen(3000, function(){
   console.log("WTFQR server listening on port %d in %s mode", app.address().port, app.settings.env);
 });
 
+var users = [];
 
 // Socket.io
 
 io.sockets.on('connection', function (socket){
+
+  socket.on('setName', function (data){
+    users.push(data.username);
+    console.log("Current users: "+users.toString());
+
+    socket.broadcast.to(data.channelName).emit("playerData", users);
+  });
+
+  socket.on('removeName', function(data){
+    console.log('Removing user '+data.username);
+  });
+
+  socket.on('disconnect', function(data){
+    console.log('DISCONNECTING');
+  });
 
   socket.on('setChannel', function (data){
     socket.join(data.channelName);

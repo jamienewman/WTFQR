@@ -47,6 +47,11 @@ WTF.socket.on('connect', function (data){
     });
 
 
+    WTF.socket.on('playerData', function(data){
+        console.log(data);
+    });
+
+
     WTF.socket.on('raceData', function(data){
 
         console.log(data);
@@ -102,6 +107,13 @@ WTF.socket.on('connect', function (data){
     });
 
 
+});
+
+
+$(window).on('beforeunload', function() {
+    WTF.socket.emit('removeName', {
+        'username': WTF.username
+    });
 });
 
 
@@ -245,7 +257,12 @@ if( window.location.pathname === '/race' ){
 }
 
 // Mobile ui page
-if( window.location.pathname === '/ui' ){
+if( window.location.pathname === '/ui' ) {
     WTF.username = prompt('Enter your name');
+
+    WTF.socket.emit('setName', {
+        'username': WTF.username
+    }); 
+    
     WTF.controls();
 }
