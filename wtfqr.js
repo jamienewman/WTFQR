@@ -151,6 +151,12 @@ app.get('/ui', function(req, res){
 
 });
 
+app.get('/podium', function(req, res) {
+	
+	res.render('podium', {
+		title: 'Awards'
+	});
+});
 
 app.listen(3000, function(){
   console.log("WTFQR server listening on port %d in %s mode", app.address().port, app.settings.env);
