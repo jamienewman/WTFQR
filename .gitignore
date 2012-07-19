@@ -1,3 +1,11 @@
 .nide
 node_modules
 .npmignore
+
+views/.DS_Store
+
+public/css/.DS_Store
+
+public/img/.DS_Store
+
+.DS_Store
