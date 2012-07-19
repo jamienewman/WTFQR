@@ -29,7 +29,7 @@ passport.deserializeUser(function(obj, done) {
 passport.use(new TwitterStrategy({
     consumerKey: '6olMOiTALuonaaOkJ9sjQ',
     consumerSecret: '2nwMhMl5ihSYo1MDqGi7B9TVQO7A7PS0pnpDF3pDc9c',
-    callbackURL: "http://JamieNewman.local:3000/auth/twitter/callback"
+    callbackURL: "http://172.27.64.228:3000/auth/twitter/callback"
   },
   function(token, tokenSecret, profile, done){
      process.nextTick(function () {
@@ -41,7 +41,7 @@ passport.use(new TwitterStrategy({
 passport.use(new FacebookStrategy({
     clientID: '328866273857515',
     clientSecret: '90a2283a9f1ead52d138c64de737710b',
-    callbackURL: "http://JamieNewman.local:3000/auth/facebook/callback"
+    callbackURL: "http://172.27.64.228:3000/auth/facebook/callback"
   },
   function(accessToken, refreshToken, profile, done){
     process.nextTick(function () {
@@ -95,7 +95,7 @@ app.get('/', function(req, res){
 
     console.log(req.headers.host);
 
-    encoder.toDataURL('http://' + req.headers.host + '/join', function(err, png){
+    encoder.toDataURL('http://' + '172.27.64.228:3000' + '/join', function(err, png){
 
         res.render('index', { 
             title: 'WTFQR',

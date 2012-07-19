@@ -18,8 +18,23 @@ body
   background-repeat repeat
   background-position 50% 50%
 
+body.mobileui
+  padding 50px
+  font 14px "Lucida Grande", Helvetica, Arial, sans-serif
+  background linear-gradient(top, #E9E9E9, #fff)
+  background #E9E9E9
+  background-image url("/img/olympicRings-sml.png"), -webkit-gradient(linear, left top, left bottom, from(#FFF), to(#E9E9E9)) /* Saf4+, Chrome */
+  background-image url("/img/olympicRings-sml.png"), -webkit-linear-gradient(top, #FFF, #E9E9E9) /* Chrome 10+, Saf5.1+ */
+  background-image url("/img/olympicRings-sml.png"),    -moz-linear-gradient(top, #FFF, #E9E9E9) /* FF3.6+ */
+  background-image url("/img/olympicRings-sml.png"),     -ms-linear-gradient(top, #FFF, #E9E9E9) /* IE10 */
+  background-image url("/img/olympicRings-sml.png"),      -o-linear-gradient(top, #FFF, #E9E9E9) /* Opera 11.10+ */
+  background-image url("/img/olympicRings-sml.png"),         linear-gradient(top, #FFF, #E9E9E9) /* W3C*/
+  background-repeat repeat
+  background-position 50% 2%
+
 a
-  color #00B7FF
+	text-decoration none
+	color #00B7FF
 
 h1
 	font-size 60px
@@ -27,9 +42,11 @@ h1
 	margin 0 0 30px
 	text-shadow 2px 2px 3px white
 	text-align center
+	color #F00
 
 .mobile h1
 	font-size 40px
+	color #F00
 
 .controls
 	width 75%
@@ -52,7 +69,7 @@ h1
 	box-shadow 0 40px 46px -6px #ccc
 	border-radius 10px
 	border 1px solid #ebebeb
-	font-size 30px
+	font-size 18px
 	text-shadow 1px 1px 2px #ccc
 
 .left, .right
@@ -67,6 +84,7 @@ h1
 		font-size 24px
 		margin 0 0 30px
 		text-shadow 2px 2px 3px white
+		color	#F00
 
 	img
 		box-shadow 0 40px 46px -6px #ccc
