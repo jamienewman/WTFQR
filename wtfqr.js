@@ -11,7 +11,8 @@ var express = require('express')
   , passport = require('passport')
   , FacebookStrategy = require('passport-facebook').Strategy
   , TwitterStrategy = require('passport-twitter').Strategy
-  , io = require('socket.io');
+  , io = require('socket.io')
+  , os = require('os');
 
 
 var app = express.createServer()
@@ -26,30 +27,6 @@ passport.deserializeUser(function(obj, done) {
   done(null, obj);
 });
 
-passport.use(new TwitterStrategy({
-    consumerKey: '6olMOiTALuonaaOkJ9sjQ',
-    consumerSecret: '2nwMhMl5ihSYo1MDqGi7B9TVQO7A7PS0pnpDF3pDc9c',
-    callbackURL: "http://172.27.64.228:3000/auth/twitter/callback"
-  },
-  function(token, tokenSecret, profile, done){
-     process.nextTick(function () {
-      return done(null, profile);
-    });
-  }
-));
-
-passport.use(new FacebookStrategy({
-    clientID: '328866273857515',
-    clientSecret: '90a2283a9f1ead52d138c64de737710b',
-    callbackURL: "http://172.27.64.228:3000/auth/facebook/callback"
-  },
-  function(accessToken, refreshToken, profile, done){
-    process.nextTick(function () {
-      return done(null, profile);
-    });
-  }
-));
-
 // Configuration
 
 app.configure(function(){
@@ -61,10 +38,10 @@ app.configure(function(){
       src: __dirname + '/public',
       compile: compile
     }));
-  app.use(express.cookieParser()); 
-  app.use(express.session({ secret: 'afhf9q8h21ejhdaskjdlasjda'}));
   app.use(passport.initialize());
   app.use(passport.session());
+  app.use(express.cookieParser()); 
+  app.use(express.session({ secret: 'afhf9q8h21ejhdaskjdlasjda'}));
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 });
@@ -95,7 +72,7 @@ app.get('/', function(req, res){
 
     console.log(req.headers.host);
 
-    encoder.toDataURL('http://' + '172.27.64.228:3000' + '/join', function(err, png){
+    encoder.toDataURL('http://' + req.headers.host + '/join', function(err, png){
 
         res.render('index', { 
             title: 'WTFQR',
@@ -107,13 +84,38 @@ app.get('/', function(req, res){
 });
 
 app.get('/join', function(req, res){
+  passport.use(new TwitterStrategy({
+      consumerKey: '6olMOiTALuonaaOkJ9sjQ',
+      consumerSecret: '2nwMhMl5ihSYo1MDqGi7B9TVQO7A7PS0pnpDF3pDc9c',
+      callbackURL: "http://"+req.headers.host+"/auth/twitter/callback"
+    },
+    function(token, tokenSecret, profile, done){
+       process.nextTick(function () {
+        return done(null, profile);
+      });
+    }
+  ));
+
+  passport.use(new FacebookStrategy({
+      clientID: '328866273857515',
+      clientSecret: '90a2283a9f1ead52d138c64de737710b',
+      callbackURL: "http://"+req.headers.host+"/auth/facebook/callback"
+    },
+    function(accessToken, refreshToken, profile, done){
+      process.nextTick(function () {
+        return done(null, profile);
+      });
+    }
+  ));
+
   res.render('join', {
     title: 'Join'
   });
 });
 
-app.get('/auth/facebook', passport.authenticate('facebook', 
-    { scope: ['publish_actions', 'email'] } 
+app.get('/auth/facebook', passport.authenticate('facebook', {
+    scope: ['publish_actions', 'email']
+  }
 ));
 
 
@@ -125,7 +127,6 @@ app.get('/auth/facebook/callback',
 );
 
 app.get('/auth/twitter', passport.authenticate('twitter'));
-
 
 app.get('/auth/twitter/callback', 
   passport.authenticate('twitter', { 
@@ -158,7 +159,9 @@ app.get('/podium', function(req, res) {
 	});
 });
 
-app.listen(3000, function(){
+var port = process.env.PORT || 3000;
+
+app.listen(port, function(){
   console.log("WTFQR server listening on port %d in %s mode", app.address().port, app.settings.env);
 });
 

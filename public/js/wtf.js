@@ -48,7 +48,7 @@ WTF.socket.on('connect', function (data){
 
 
     WTF.socket.on('playerData', function(data){
-        console.log(data);
+        console.log(data.length);
     });
 
 
