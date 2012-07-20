@@ -68,15 +68,15 @@ WTF.socket.on('connect', function (data){
         }
 
         if(data.foot == 'left') {
-            if(WTF.users[data.userId].src.indexOf('_2.png') >= 0) {
-                WTF.users[data.userId].src = WTF.users[data.userId].src.replace('_2.png', '.png');
+            if(WTF.users[data.userId].image.src.indexOf('_2.png') >= 0) {
+                WTF.users[data.userId].image.src = WTF.users[data.userId].image.src.replace('_2.png', '.png');
             }
             //WTF.users[data.userId].src = 'img/runner1.png';
         }
 
         if(data.foot == 'right') {
-            if(WTF.users[data.userId].src.indexOf('_2.png') < 0) {
-                WTF.users[data.userId].src = WTF.users[data.userId].src.replace('.png', '_2.png');
+            if(WTF.users[data.userId].image.src.indexOf('_2.png') < 0) {
+                WTF.users[data.userId].image.src = WTF.users[data.userId].image.src.replace('.png', '_2.png');
             }
             //WTF.users[data.userId].src = 'img/runner1_2.png';
         }
@@ -219,6 +219,10 @@ WTF.drawCanvas = function(){
     //WTF.ctx.drawImage(WTF.runner2, WTF.r2x, WTF.r2y);
 
     for(var userId in WTF.users) {
+        WTF.ctx.font = "bold 20px sans-serif";
+        WTF.ctx.textAlign = "left";
+        WTF.ctx.fillText(WTF.users[userId].name, 100, (WTF.users[userId].y + 55));
+        WTF.ctx.drawImage(WTF.users[userId].photo, 400, (WTF.users[userId].y + 35), 25, 25);
         WTF.ctx.drawImage(WTF.users[userId].image, WTF.users[userId].x, WTF.users[userId].y);
         if(WTF.users[userId].x >= 566) {
             WTF.finished = true;
@@ -300,11 +304,13 @@ if( window.location.pathname === '/race' ){
     var i = 0;
 
     for(var userId in WTF.users) {
-        $('.racers').append('<p><img src="'+WTF.users[userId].photo+'" />'+WTF.users[userId].name+'</p>')
+        //$('.racers ol').append('<li><img src="'+WTF.users[userId].photo.src+'" /> '+WTF.users[userId].name+'</li>')
         WTF.users[userId].x = WTF.xStart;
         WTF.users[userId].y = (WTF.yStart + (WTF.yOffset * i++));
         WTF.users[userId].image = new Image();
         WTF.users[userId].image.src = 'img/runner'+i+'.png';
+        WTF.users[userId].photo = new Image();
+        WTF.users[userId].photo.src = WTF.users[userId].photoSrc;
     }
 
     console.log(WTF.users);

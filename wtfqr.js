@@ -19,6 +19,10 @@ var app = express.createServer()
   , io = io.listen(app)
   , users = {};
 
+
+users = {"Twitter98617177":{"name":"Jamie Collins","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=Collins1892"},"Facebook505411268":{"name":"Sukhdev Singh Shah","photoSrc":"http://graph.facebook.com/sukhdev.shah/picture"},"Twitter15377059":{"name":"Jamie Newman","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=jamienewman"},"Twitter36623029":{"name":"Jasal Vadgama","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=donofkarma"}};
+
+
 passport.serializeUser(function(user, done) {
   done(null, user);
 });
@@ -128,7 +132,7 @@ app.get('/auth/facebook/callback',
     req.session.userId = "Facebook"+req.user.id;
     users[req.session.userId] = {
       name: req.user.displayName,
-      photo: "http://graph.facebook.com/"+req.user.username+"/picture"
+      photoSrc: "http://graph.facebook.com/"+req.user.username+"/picture"
     }
     res.redirect('/ui');
   }
@@ -144,7 +148,7 @@ app.get('/auth/twitter/callback',
     req.session.userId = "Twitter"+req.user.id;
     users[req.session.userId] = {
       name: req.user.displayName,
-      photo: "http://api.twitter.com/1/users/profile_image?screen_name="+req.user.username
+      photoSrc: "http://api.twitter.com/1/users/profile_image?screen_name="+req.user.username
     }
     res.redirect('/ui');
   }
