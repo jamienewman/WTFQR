@@ -16,7 +16,8 @@ var express = require('express')
 
 
 var app = express.createServer()
-  , io = io.listen(app);
+  , io = io.listen(app)
+  , users = {};
 
 passport.serializeUser(function(user, done) {
   done(null, user);
@@ -121,33 +122,49 @@ app.get('/auth/facebook', passport.authenticate('facebook', {
 
 app.get('/auth/facebook/callback', 
   passport.authenticate('facebook', { 
-      successRedirect: '/ui',
-      failureRedirect: '/join/failure' 
-  })
+    failureRedirect: '/join/failure' 
+  }),
+  function(req, res) {
+    req.session.userId = "Facebook"+req.user.id;
+    users[req.session.userId] = {
+      name: req.user.displayName,
+      photo: "http://graph.facebook.com/"+req.user.username+"/picture"
+    }
+    res.redirect('/ui');
+  }
 );
 
 app.get('/auth/twitter', passport.authenticate('twitter'));
 
 app.get('/auth/twitter/callback', 
   passport.authenticate('twitter', { 
-      successRedirect: '/ui',
       failureRedirect: '/join/failure' 
-  })
+  }),
+  function(req, res) {
+    req.session.userId = "Twitter"+req.user.id;
+    users[req.session.userId] = {
+      name: req.user.displayName,
+      photo: "http://api.twitter.com/1/users/profile_image?screen_name="+req.user.username
+    }
+    res.redirect('/ui');
+  }
 );
 
 app.get('/race', function(req, res){
 
   res.render('race', {
-    title: 'WTFQR Race'
+    title: 'WTFQR Race',
+    users: users
   });
 
 });
 
 
 app.get('/ui', function(req, res){
-
+  
   res.render('mobileui', {
-    title: 'Win The Race!!'
+    title: 'Win The Race!!',
+    userId: req.session.userId
   });
 
 });
@@ -165,19 +182,23 @@ app.listen(port, function(){
   console.log("WTFQR server listening on port %d in %s mode", app.address().port, app.settings.env);
 });
 
-var users = [];
-
 // Socket.io
 
 io.sockets.on('connection', function (socket){
 
-  socket.on('setName', function (data){
-    users.push(data.username);
-    console.log("Current users: "+users.toString());
+  socket.on('playerJoin', function (data){
+    console.log("Current users: "+JSON.stringify(users));
 
-    socket.broadcast.to(data.channelName).emit("playerData", users);
+    var i = 0;
+    var heatFlag = false;
+
+    for(var j in users) {
+      i++;
+    }
+
+    socket.broadcast.to(data.channelName).emit("playerCount", i);
   });
-
+  
   socket.on('removeName', function(data){
     console.log('Removing user '+data.username);
   });

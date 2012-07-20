@@ -47,19 +47,45 @@ WTF.socket.on('connect', function (data){
     });
 
 
-    WTF.socket.on('playerData', function(data){
-        console.log(data.length);
+    WTF.socket.on('playerCount', function(data){
+        console.log(data);
+
+        var numPlayers = WTF.users - parseInt(data);
+
+        $('#count').text(numPlayers);
+
+        if(numPlayers === 0) {
+            location.href = '/race';
+        }
     });
 
 
     WTF.socket.on('raceData', function(data){
-
         console.log(data);
 
         if (WTF.finished){
             return;
         }
 
+        if(data.foot == 'left') {
+            if(WTF.users[data.userId].src.indexOf('_2.png') >= 0) {
+                WTF.users[data.userId].src = WTF.users[data.userId].src.replace('_2.png', '.png');
+            }
+            //WTF.users[data.userId].src = 'img/runner1.png';
+        }
+
+        if(data.foot == 'right') {
+            if(WTF.users[data.userId].src.indexOf('_2.png') < 0) {
+                WTF.users[data.userId].src = WTF.users[data.userId].src.replace('.png', '_2.png');
+            }
+            //WTF.users[data.userId].src = 'img/runner1_2.png';
+        }
+        console.log('Data for user: '+data.userId);
+        console.log(WTF.users[data.userId]);        
+
+        WTF.users[data.userId].x += WTF.steps;
+
+        /*
         if(WTF.player1name === null){
             WTF.player1name = data.user;
             $('.racers').append('<p>'+WTF.player1name+'</p>')
@@ -103,6 +129,7 @@ WTF.socket.on('connect', function (data){
             return;
 
         }
+        */
 
     });
 
@@ -123,9 +150,11 @@ WTF.controls = function(){
 
         evt.preventDefault();
 
-        WTF.socket.emit('buttons', {'user': WTF.username, 'foot': $(this).attr('class') });
+        WTF.socket.emit('buttons', {'userId': WTF.username, 'foot': $(this).attr('class') });
 
     }); 
+
+    FastClick(document.querySelectorAll('.controls a'));
 
 };
 
@@ -186,9 +215,26 @@ WTF.drawCanvas = function(){
         WTF.ctx.textAlign = "center";
     }
 
-    WTF.ctx.drawImage(WTF.runner1, WTF.r1x, WTF.r1y);
-    WTF.ctx.drawImage(WTF.runner2, WTF.r2x, WTF.r2y);
+    //WTF.ctx.drawImage(WTF.runner1, WTF.r1x, WTF.r1y);
+    //WTF.ctx.drawImage(WTF.runner2, WTF.r2x, WTF.r2y);
 
+    for(var userId in WTF.users) {
+        WTF.ctx.drawImage(WTF.users[userId].image, WTF.users[userId].x, WTF.users[userId].y);
+        if(WTF.users[userId].x >= 566) {
+            WTF.finished = true;
+            WTF.ctx.clearRect(0, 0, WTF.width, WTF.height);
+            WTF.rect(0, 0, WTF.width, WTF.height);
+
+            WTF.ctx.drawImage(WTF.background, 0, 0);
+            WTF.ctx.drawImage(WTF.users[userId].image, WTF.users[userId].x, WTF.users[userId].y);
+            
+            WTF.ctx.font = "bold 20px sans-serif";
+            WTF.ctx.fillText("The Winner is " + WTF.users[userId].name, WTF.width / 2, 135);
+            WTF.ctx.textAlign = "center";
+        }
+    }
+
+    /*
     if (WTF.r1x >= 566){
         WTF.finished = true;
         WTF.ctx.clearRect(0, 0, WTF.width, WTF.height);
@@ -216,11 +262,17 @@ WTF.drawCanvas = function(){
         WTF.ctx.fillText("The Winner is " + WTF.player2name, width / 2, 135);
         WTF.ctx.textAlign = "center";
     }
+    */
 
 };
 
 
 // Page specific functionality
+if( window.location.pathname === '/' ){
+    WTF.users = 4;
+
+    $('#count').text(WTF.users);
+}
 
 // Race page
 if( window.location.pathname === '/race' ){
@@ -228,15 +280,13 @@ if( window.location.pathname === '/race' ){
     WTF.canvas = document.getElementById('canvas'),
     WTF.ctx = WTF.canvas.getContext('2d'),
     WTF.steps = 10,
-    WTF.r1x = 10,
-    WTF.r1y = 80,
-    WTF.r2x = 10,
-    WTF.r2y = 170,
+    WTF.xStart = 10,
+    WTF.yStart = 80,
+    WTF.xOffset = 90,
+    WTF.yOffset = 90,
     WTF.width = 600,
-    WTF.height = 241,
+    WTF.height = 419,
     WTF.background = new Image(),
-    WTF.runner1 = new Image(),
-    WTF.runner2 = new Image(),
     WTF.finished = false,
     WTF.key1 = false,
     WTF.key2 = false,
@@ -245,12 +295,27 @@ if( window.location.pathname === '/race' ){
     WTF.framenumber = 0,
     WTF.countdown = 4;
 
-    WTF.background.src = 'img/bg.gif';
+    WTF.background.src = 'img/bg.png';
+
+    var i = 0;
+
+    for(var userId in WTF.users) {
+        $('.racers').append('<p><img src="'+WTF.users[userId].photo+'" />'+WTF.users[userId].name+'</p>')
+        WTF.users[userId].x = WTF.xStart;
+        WTF.users[userId].y = (WTF.yStart + (WTF.yOffset * i++));
+        WTF.users[userId].image = new Image();
+        WTF.users[userId].image.src = 'img/runner'+i+'.png';
+    }
+
+    console.log(WTF.users);
+
+    /*
     WTF.runner1.src = 'img/runner1.png';
     WTF.runner2.src = 'img/runner2.png';
 
     WTF.player1name = null; 
     WTF.player2name = null;
+    */
 
     WTF.gameInit();
 
@@ -258,11 +323,20 @@ if( window.location.pathname === '/race' ){
 
 // Mobile ui page
 if( window.location.pathname === '/ui' ) {
+    /*
     WTF.username = prompt('Enter your name');
 
     WTF.socket.emit('setName', {
         'username': WTF.username
-    }); 
+    });
+
+    */
+
+    WTF.username = $('body').attr('id');
+
+    WTF.socket.emit('playerJoin', {
+        'username': WTF.username
+    });
     
     WTF.controls();
 }

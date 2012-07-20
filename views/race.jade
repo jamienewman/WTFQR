@@ -3,13 +3,16 @@ h1= title
 section.race
 	
 	p Welcome to #{title}
-	canvas#canvas(width="600", height="241")
+	canvas#canvas(width="600", height="419")
 
 	div.racers
 
 
 
 
+script
+	var WTF = WTF || {};
+	WTF.users = !{JSON.stringify(users)};
 
 script(src="/js/zepto.js")
 script(src="/socket.io/socket.io.js")
