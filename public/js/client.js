@@ -12,16 +12,29 @@ WTF.socket.on('connect', function (data){
     });
 });
 
-WTF.controls = function(){
-    $('.controls a').on('click', function(evt){
+WTF.controls = {
+    lastTouchX: 0,
 
-        evt.preventDefault();
+    init: function() {
 
-        WTF.socket.emit('buttons', {'userId': WTF.username, 'foot': $(this).attr('class') });
+        $('.mobileui').on('touchstart', function(e) {
+            WTF.controls.lastTouchX = e.touches[0].pageX;
 
-    }); 
+            return false;
+        });
 
-    FastClick(document.querySelectorAll('.controls a'));
+        $('.mobileui').on('touchmove', function(e) {
+            if(WTF.controls.lastTouchX - e.touches[0].pageX > 50) {
+                WTF.controls.lastTouchX = e.touches[0].pageX;
+                WTF.socket.emit('buttons', {'userId': WTF.username, 'foot': 'right'});
+            } else if(e.touches[0].pageX - WTF.controls.lastTouchX > 50) {
+                WTF.controls.lastTouchX = e.touches[0].pageX;
+                WTF.socket.emit('buttons', {'userId': WTF.username, 'foot': 'left'});
+            }
+
+            return false;
+        });
+    }
 };
 
 WTF.playerFinish = function(position) {
@@ -36,7 +49,7 @@ if($('body').attr('id') !== "") {
         'username': WTF.username
     });
 
-    WTF.controls();
+    WTF.controls.init();
 }
 
 $(window).on('beforeunload', function() {
