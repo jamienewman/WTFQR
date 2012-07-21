@@ -14,23 +14,28 @@ WTF.socket.on('connect', function (data){
 
 WTF.controls = {
     lastTouchX: 0,
+    lastTouchDate: {},
 
     init: function() {
 
         $('.mobileui').on('touchstart', function(e) {
             WTF.controls.lastTouchX = e.touches[0].pageX;
+            WTF.controls.lastTouchDate = new Date();
 
             return false;
         });
 
         $('.mobileui').on('touchmove', function(e) {
-            if(WTF.controls.lastTouchX - e.touches[0].pageX > 50) {
-                WTF.controls.lastTouchX = e.touches[0].pageX;
+            var timeDiff = new Date() - WTF.controls.lastTouchDate;
+
+            if(WTF.controls.lastTouchX - e.touches[0].pageX > 50 && timeDiff < 20) {
                 WTF.socket.emit('buttons', {'userId': WTF.username, 'foot': 'right'});
-            } else if(e.touches[0].pageX - WTF.controls.lastTouchX > 50) {
-                WTF.controls.lastTouchX = e.touches[0].pageX;
+            } else if(e.touches[0].pageX - WTF.controls.lastTouchX > 50 && timeDiff < 20) {
                 WTF.socket.emit('buttons', {'userId': WTF.username, 'foot': 'left'});
             }
+
+            WTF.controls.lastTouchX = e.touches[0].pageX;
+            WTF.controls.lastTouchDate = new Date();
 
             return false;
         });
