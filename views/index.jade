@@ -7,9 +7,12 @@ section.home
 	img(src="#{image}", id="qr", width="75%", height="75%")
 
 	p Waiting for 
-		span#count
+		span#count= numPlayers
 		span  players
 
 script(src="/js/zepto.js")
 script(src="/socket.io/socket.io.js")
-script(src="/js/wtf.js")
+script(src="/js/common.js")
+script(src="/js/server.js")
+script
+	WTF.users = !{numPlayers};

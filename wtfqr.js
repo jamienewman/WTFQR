@@ -19,6 +19,8 @@ var app = express.createServer()
   , io = io.listen(app)
   , users = {};
 
+var numPlayers = 4
+  , heatFlag = false;
 
 users = {"Twitter98617177":{"name":"Jamie Collins","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=Collins1892"},"Facebook505411268":{"name":"Sukhdev Singh Shah","photoSrc":"http://graph.facebook.com/sukhdev.shah/picture"},"Twitter15377059":{"name":"Jamie Newman","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=jamienewman"},"Twitter36623029":{"name":"Jasal Vadgama","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=donofkarma"}};
 
@@ -81,7 +83,8 @@ app.get('/', function(req, res){
 
         res.render('index', { 
             title: 'WTFQR',
-            image: png
+            image: png,
+            numPlayers: numPlayers
         });
     
     });
@@ -132,7 +135,8 @@ app.get('/auth/facebook/callback',
     req.session.userId = "Facebook"+req.user.id;
     users[req.session.userId] = {
       name: req.user.displayName,
-      photoSrc: "http://graph.facebook.com/"+req.user.username+"/picture"
+      photoSrc: "http://graph.facebook.com/"+req.user.username+"/picture",
+      heat: !heatFlag
     }
     res.redirect('/ui');
   }
@@ -148,7 +152,8 @@ app.get('/auth/twitter/callback',
     req.session.userId = "Twitter"+req.user.id;
     users[req.session.userId] = {
       name: req.user.displayName,
-      photoSrc: "http://api.twitter.com/1/users/profile_image?screen_name="+req.user.username
+      photoSrc: "http://api.twitter.com/1/users/profile_image?screen_name="+req.user.username,
+      heat: !heatFlag
     }
     res.redirect('/ui');
   }
@@ -156,11 +161,16 @@ app.get('/auth/twitter/callback',
 
 app.get('/race', function(req, res){
 
-  res.render('race', {
-    title: 'WTFQR Race',
-    users: users
-  });
+  encoder.toDataURL('http://' + req.headers.host + '/join', function(err, png){
 
+    res.render('race', {
+      title: 'WTFQR Race',
+      users: users,
+      image: png,
+      numPlayers: numPlayers
+    });
+    
+  });
 });
 
 
@@ -196,11 +206,27 @@ io.sockets.on('connection', function (socket){
     var i = 0;
     var heatFlag = false;
 
+    var photos = [];
+
     for(var j in users) {
       i++;
+      photos.push(users[j].photo);
     }
 
-    socket.broadcast.to(data.channelName).emit("playerCount", i);
+    socket.broadcast.to(data.channelName).emit("playerCount", {
+      "number": i,
+      "photos": photos
+    });
+  });
+
+  socket.on('playerFinished', function(data){
+    users[data.username].position = data.position;
+
+    socket.broadcast.to(data.channelName).emit("playerFinish", {
+      'username': data.username,
+      'position': data.position,
+      'stage': data.stage
+    });
   });
   
   socket.on('removeName', function(data){

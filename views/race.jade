@@ -1,9 +1,6 @@
-h1= title
-
 section.race
 	
-	p Welcome to #{title}
-	canvas#canvas(width="600", height="419")
+	canvas#canvas(width="960", height="600")
 
 	.racers
 		ol
@@ -11,10 +8,16 @@ section.race
 
 
 
-script
-	var WTF = WTF || {};
-	WTF.users = !{JSON.stringify(users)};
-
 script(src="/js/zepto.js")
 script(src="/socket.io/socket.io.js")
-script(src="/js/wtf.js")
+script(src="/js/common.js")
+script(src="/js/server.js")
+script
+	var WTF = WTF || {};
+	WTF.numPlayers = !{numPlayers};
+	WTF.users = !{JSON.stringify(users)};
+	WTF.qrImage = new Image();
+	WTF.qrImage.onload = function() {
+		WTF.setupCanvas();
+	};
+	WTF.qrImage.src = "!{image}";
