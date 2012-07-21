@@ -6,17 +6,11 @@ WTF.socket.on('connect', function (data){
 
     WTF.socket.on('playerCount', function(data){
         if(WTF.raceStatus === "waiting") {
+            var data = JSON.parse(data);
+
             WTF.remainingPlayers = WTF.numPlayers - parseInt(data.number);
 
-            WTF.playerThumbs = [];
-
-            for(var i=0; i<data.photos.length; i++) {
-                var newImage = new Image();
-                newImage.load = function() {
-                    WTF.playerThumbs.push(this);
-                }
-                newImage.src = data.photo;
-            }
+            WTF.users = data.users;
         }
     });
 
@@ -120,7 +114,6 @@ WTF.canvasY = 0;
 WTF.canvasMaxY = 500;
 
 WTF.openingCeremony = function() {
-    console.log(WTF.canvasY, WTF.canvasMaxY);
     if(WTF.canvasY <= WTF.canvasMaxY) {
         requestAnimationFrame(WTF.openingCeremony);
         WTF.drawOpeningCeremony();
@@ -138,7 +131,7 @@ WTF.drawOpeningCeremony = function() {
 }
 
 WTF.updatePlayers = function() {
-    if(WTF.remainingPlayers === 0) {
+    if(WTF.remainingPlayers <= 0) {
         WTF.startRace();
         return;
     }
@@ -197,6 +190,12 @@ WTF.startRace = function() {
     WTF.nextPosition = 1,
     WTF.countdown = 4;
 
+    WTF.setupPlayers();
+
+    WTF.openingCeremony();
+}
+
+WTF.setupPlayers = function() {
     var i = 0;
 
     for(var userId in WTF.users) {
@@ -209,6 +208,4 @@ WTF.startRace = function() {
         WTF.users[userId].photo.src = WTF.users[userId].photoSrc;
         WTF.users[userId].playing = true;
     }
-
-    WTF.openingCeremony();
 }
