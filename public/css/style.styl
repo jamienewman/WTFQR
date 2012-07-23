@@ -21,6 +21,7 @@ body.mobileui
   height 100%
   background #000
   vertical-align middle
+  margin 0
   padding 0
   text-align center
 
@@ -62,29 +63,36 @@ h1
 	font-size 40px
 	color #F00
 
+.mobileui .join
+	text-align left
+
+	h1
+		margin 0
+		font-size 40px
+		color #F00
+
 .controls
-	width 75%
 	margin 0 auto
     box-orient horizontal
     box-align center
     box-pack center
     border-radius 5px
-	display box
+	display block
+	text-align center
 
 .controls a
 	text-decoration none
-	display block
-	padding 40% 10%
-	width 45%
-	margin 2.5% 10% 0 0
+	display inline-block
+	padding 10% 0
+	width 50%
+	margin 2.5% 0 0 0
 	color #252525
-	text-align center
-	background linear-gradient(top, #fcfcfc, #bada55)
-	box-shadow 0 40px 46px -6px #ccc
-	border-radius 10px
-	border 1px solid #ebebeb
 	font-size 18px
 	text-shadow 1px 1px 2px #ccc
+
+.controls a img
+	margin 0
+	padding 0
 
 .left, .right
 	display: none
