@@ -177,6 +177,10 @@ WTF.race = {
             WTF.users[userId].photo.src = WTF.users[userId].photoSrc;
             WTF.users[userId].playing = true;
             WTF.users[userId].position = null;
+            WTF.socket.emit('playerState', {
+                'username': userId,
+                'state': 'playing'
+            });
         }
 
         console.log(WTF.users);
@@ -287,9 +291,24 @@ WTF.race = {
                         'position': WTF.nextPosition++
                     });
 
+                    WTF.socket.emit('playerState', {
+                        'username': userId,
+                        'state': 'winner',
+                        'position': '1st',
+                        'stage': WTF.race.stage
+                    });
+
                     WTF.competition.setWinner(userId,WTF.race.stage);
 
                     if(WTF.race.playersFinished >= WTF.race.numWinners) {
+                        for(var userId in WTF.users) {
+                            if(WTF.users[userId].playing === true) {
+                                WTF.socket.emit('playerState', {
+                                    'username': userId,
+                                    'state': 'gameover'
+                                });
+                            }
+                        }
                         WTF.race.status = "finished";
                         WTF.race.nextStage();
                     }
