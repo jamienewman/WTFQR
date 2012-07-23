@@ -232,6 +232,12 @@ io.sockets.on('connection', function (socket){
       'stage': data.stage
     });
   });
+
+  socket.on('playerState', function(data){
+    console.log("Player state: "+data.toString());
+
+    socket.broadcast.to(data.channelName).emit("playerState", data);
+  });
   
   socket.on('removeName', function(data){
     console.log('Removing user '+data.username);

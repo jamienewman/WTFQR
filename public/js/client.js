@@ -10,6 +10,28 @@ WTF.socket.on('connect', function (data){
             WTF.playerFinish(data.position);
         }
     });
+
+    WTF.socket.on('playerState', function(data) {
+        if(data.username === WTF.username) {
+            switch(data.state) {
+                case "winner":
+                    $('body.mobileui').attr('class', "mobileui winner");
+                    $('.mobile p').text('Winner! Position: '+data.position);
+                    break;
+                case "gameover":
+                    $('body.mobileui').attr('class', "mobileui gameover");
+                    $('.mobile p').text('Game over! Unlucky.');
+                    break;
+                case "playing":
+                    $('body.mobileui').attr('class', "mobileui playing");
+                    $('.mobile p').text('Swipe me, really fast.');
+                    break;
+                default:
+                    $('body.mobileui').attr('class', "mobileui");
+                    $('.mobile p').text('Sit tight...');
+            };
+        }
+    });
 });
 
 WTF.controls = {

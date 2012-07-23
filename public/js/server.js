@@ -176,6 +176,11 @@ WTF.race = {
             WTF.users[userId].photo = new Image();
             WTF.users[userId].photo.src = WTF.users[userId].photoSrc;
             WTF.users[userId].playing = true;
+            WTF.users[userId].position = null;
+            WTF.socket.emit('playerState', {
+                'username': userId,
+                'state': 'playing'
+            });
         }
 
         console.log(WTF.users);
@@ -269,7 +274,8 @@ WTF.race = {
                 WTF.ctx.textAlign = "left";
 
                 try {
-                    WTF.ctx.fillText(WTF.users[userId].name, 100, (WTF.users[userId].y + 55));
+                    var nameText = WTF.users[userId].name + (WTF.users[userId].position !== null ? " ("+WTF.users[userId].position+")":"");
+                    WTF.ctx.fillText(nameText, 100, (WTF.users[userId].y + 55));
                     WTF.ctx.drawImage(WTF.users[userId].image, WTF.users[userId].x, WTF.users[userId].y);
                 } catch(e) {
                     console.log(WTF.users);
@@ -279,15 +285,30 @@ WTF.race = {
                 if(WTF.users[userId].x >= 926 && WTF.users[userId].playing === true) {
                     WTF.race.playersFinished++;                
                     WTF.users[userId].playing = false;
-                    WTF.users[userId].name = WTF.users[userId].name+" ("+WTF.nextPosition+")";
+                    WTF.users[userId].position = WTF.nextPosition;
                     WTF.socket.emit('playerFinished', {
                         'username': userId,
                         'position': WTF.nextPosition++
                     });
 
+                    WTF.socket.emit('playerState', {
+                        'username': userId,
+                        'state': 'winner',
+                        'position': '1st',
+                        'stage': WTF.race.stage
+                    });
+
                     WTF.competition.setWinner(userId,WTF.race.stage);
 
                     if(WTF.race.playersFinished >= WTF.race.numWinners) {
+                        for(var userId in WTF.users) {
+                            if(WTF.users[userId].playing === true) {
+                                WTF.socket.emit('playerState', {
+                                    'username': userId,
+                                    'state': 'gameover'
+                                });
+                            }
+                        }
                         WTF.race.status = "finished";
                         WTF.race.nextStage();
                     }
