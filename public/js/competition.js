@@ -38,15 +38,16 @@ Competition.prototype.nextStage = function () {
 };
 
 Competition.prototype.getRacers = function () {
+    console.log(this.stateIndex_,this.states_[this.stateIndex_],this.categorisedUsers_[this.states_[this.stateIndex_]])
     return this.categorisedUsers_[this.states_[this.stateIndex_]];
 };
 
 Competition.prototype.setWinner = function (userId,stage) {
     var finalState = {};
-    if(this.states_[this.stateIndex_].indexOf('heat') > 0) {
+    if(stage.indexOf('heat') >= 0) {
         finalState = this.categorisedUsers_[this.states_[4]];
         finalState[userId] = this.userData_[userId];
-    } else if (this.states_[this.stateIndex_].indexOf('finals') > 0) {
+    } else if (stage.indexOf('finals') >= 0) {
         finalState = this.categorisedUsers_[this.states_[5]];
         finalState[userId] = this.userData_[userId];
     }
