@@ -19,11 +19,18 @@ var app = express.createServer()
   , io = io.listen(app)
   , users = {};
 
-var numPlayers = 4
-  , heatFlag = false;
+var numPlayers = 8;
 
 //users = {"Twitter98617177":{"name":"Jamie Collins","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=Collins1892"},"Facebook505411268":{"name":"Sukhdev Singh Shah","photoSrc":"http://graph.facebook.com/sukhdev.shah/picture"},"Twitter36623029":{"name":"Jasal Vadgama","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=donofkarma"}};
-users = {"Twitter98617177":{"name":"Jamie Collins","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=Collins1892"},"Facebook505411268":{"name":"Sukhdev Singh Shah","photoSrc":"http://graph.facebook.com/sukhdev.shah/picture"}};
+users = {
+          "Test1": {"name":"Jamie Newman","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=jamienewman"},
+          "Twitter98617174":{"name":"Jamie Collins","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=Collins1892"},
+          "Facebook505411263":{"name":"Sukhdev Singh Shah","photoSrc":"http://graph.facebook.com/sukhdev.shah/picture"},
+          "Twitter98617177":{"name":"Jamie Collins","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=Collins1892"},
+          "Facebook505411268":{"name":"Sukhdev Singh Shah","photoSrc":"http://graph.facebook.com/sukhdev.shah/picture"},
+          "Twitter98617177":{"name":"Jamie Collins","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=Collins1892"},
+          "Facebook826600572":{"name":"Nicola Newman","photoSrc":"http://graph.facebook.com/nicola.newman81/picture"},
+        };
 users["Twitter15377059"] = {"name":"Jamie Newman","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=jamienewman"};
 
 passport.serializeUser(function(user, done) {
@@ -136,8 +143,7 @@ app.get('/auth/facebook/callback',
     req.session.userId = "Facebook"+req.user.id;
     users[req.session.userId] = {
       name: req.user.displayName,
-      photoSrc: "http://graph.facebook.com/"+req.user.username+"/picture",
-      heat: !heatFlag
+      photoSrc: "http://graph.facebook.com/"+req.user.username+"/picture"
     }
     res.redirect('/ui');
   }
@@ -153,8 +159,7 @@ app.get('/auth/twitter/callback',
     req.session.userId = "Twitter"+req.user.id;
     users[req.session.userId] = {
       name: req.user.displayName,
-      photoSrc: "http://api.twitter.com/1/users/profile_image?screen_name="+req.user.username,
-      heat: !heatFlag
+      photoSrc: "http://api.twitter.com/1/users/profile_image?screen_name="+req.user.username
     }
     res.redirect('/ui');
   }
@@ -205,7 +210,6 @@ io.sockets.on('connection', function (socket){
     console.log("Current users: "+JSON.stringify(users));
 
     var i = 0;
-    var heatFlag = false;
 
     var photos = [];
 

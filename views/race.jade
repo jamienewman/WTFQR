@@ -10,12 +10,17 @@ section.race
 
 script(src="/js/zepto.js")
 script(src="/socket.io/socket.io.js")
+script(src="/js/competition.js")
 script(src="/js/common.js")
 script(src="/js/server.js")
 script
 	var WTF = WTF || {};
 	WTF.numPlayers = !{numPlayers};
 	WTF.users = !{JSON.stringify(users)};
+	WTF.remainingPlayers = WTF.numPlayers;
+	for(var i in WTF.users) {
+		WTF.remainingPlayers--;
+	}
 	WTF.qrImage = new Image();
 	WTF.qrImage.onload = function() {
 		WTF.setupCanvas();
