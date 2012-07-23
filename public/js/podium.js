@@ -12,7 +12,7 @@ var Podium = {
 	canvas : null,
 	ctx : null,
 	canvasY : 0,
-	canvasMaxY : 380,
+	canvasMaxY : 362,
 	width : 960,
     height : 600,
 	
@@ -20,6 +20,7 @@ var Podium = {
 		Podium.doc = document;
 		Podium.canvas = Podium.doc.getElementById('podium');
 		Podium.ctx = Podium.canvas.getContext('2d');
+		Podium.ctx.save();
 		
 		function canvasSupport() {
 			return !!document.createElement('canvas').getContext;
@@ -65,11 +66,18 @@ var Podium = {
 	
 	animate : function () {
 		if (Podium.canvasY <= Podium.canvasMaxY) {
-          requestAnimationFrame(Podium.animate);
-          Podium.clearCanvas();
-          Podium.ctx.drawImage(Podium.carpet, 0, 480);
-          Podium.ctx.drawImage(Podium.background, 300, parseInt(++Podium.canvasY, 10));
+			Podium.ctx.rotate(0);
+			requestAnimationFrame(Podium.animate);
+			Podium.clearCanvas();
+			Podium.ctx.drawImage(Podium.carpet, 0, 480);
+			Podium.canvasY = Podium.canvasY + 7;
+			if (Podium.canvasY >= 360) {
+				Podium.ctx.translate(-100, 140);
+				Podium.ctx.rotate(-0.23);
+			}
+			Podium.ctx.drawImage(Podium.background, 300, parseInt(Podium.canvasY, 10));
 		} else {
+			Podium.ctx.restore();
 			Podium.drawImages();
 		}
 	},
