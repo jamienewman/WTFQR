@@ -12,9 +12,9 @@ var Podium = {
 	canvas : null,
 	ctx : null,
 	canvasY : 0,
-	canvasMaxY : 500,
+	canvasMaxY : 380,
 	width : 960,
-    height : 1100,
+    height : 600,
 	
 	init : function () {
 		Podium.doc = document;
@@ -31,17 +31,22 @@ var Podium = {
 				return;
 			}
 
-			Podium.renderBg();
+			Podium.render();
 		}
 		
 		window.addEventListener('load', eventWindowLoaded, false);
 	},
 	
-	renderBg : function () {
+	render : function () {
+		Podium.carpet = new Image();
+		Podium.carpet.onload = function () {
+			Podium.ctx.drawImage(Podium.carpet, 0, 400);
+		};
+		Podium.carpet.src = '/img/red-carpet.png';
 		Podium.background = new Image();
 		Podium.background.onload = function () {
-			Podium.ctx.drawImage(Podium.background, 0, 0);
-			Podium.animateBg();
+			Podium.ctx.drawImage(Podium.background, 300, 0);
+			Podium.animate();
 		};
 		Podium.background.src = '/img/podium.png';
 	},
@@ -58,12 +63,12 @@ var Podium = {
 		Podium.ctx.stroke();
 	},
 	
-	animateBg : function () {
+	animate : function () {
 		if (Podium.canvasY <= Podium.canvasMaxY) {
-          requestAnimationFrame(Podium.animateBg);
+          requestAnimationFrame(Podium.animate);
           Podium.clearCanvas();
-          Podium.rect(0, 0, Podium.width, Podium.height);
-          Podium.ctx.drawImage(Podium.background, 0, parseInt("-" + (++Podium.canvasY), 10));
+          Podium.ctx.drawImage(Podium.carpet, 0, 480);
+          Podium.ctx.drawImage(Podium.background, 300, parseInt(++Podium.canvasY, 10));
 		} else {
 			Podium.drawImages();
 		}
@@ -78,7 +83,7 @@ var Podium = {
 		
 		Podium.second = new Image();
 		Podium.second.onload = function () {
-			Podium.ctx.drawImage(Podium.second, 310, 290);
+			Podium.ctx.drawImage(Podium.second, 310, 280);
 		};
 		Podium.second.src = "/img/balotelli.jpg";
 		
