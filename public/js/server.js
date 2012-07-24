@@ -155,7 +155,7 @@ WTF.race = {
     setupNewRace: function() {
         WTF.race.status = "starting";
 
-        WTF.steps = 10,
+        WTF.steps = 3,
         WTF.xStart = 10,
         WTF.yStart = 261,
         WTF.xOffset = 90,
@@ -245,7 +245,7 @@ WTF.race = {
             WTF.race.nextStage();
         }
         
-        var themeAudio = document.getElementById('theme');
+        var themeAudio = document.getElementById('audio');
         themeAudio.play();
         
     },
