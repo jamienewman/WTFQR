@@ -372,6 +372,10 @@ WTF.race = {
         },
 
         animate: function() {
+        	
+        	WTF.race.podium.audio.src="/audio/cartoonbombdrop.wav";
+        	WTF.race.podium.audio.play();
+        	
             if (WTF.race.podium.canvasY <= WTF.race.podium.canvasMaxY) {
                 WTF.ctx.rotate(0);
                 requestAnimationFrame(WTF.race.podium.animate);
