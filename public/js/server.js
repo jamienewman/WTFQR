@@ -388,6 +388,7 @@ WTF.race = {
                 }
                 WTF.ctx.drawImage(WTF.race.podium.background, 300, parseInt(WTF.race.podium.canvasY, 10));
             } else {
+            	WTF.race.podium.audio.src="/audio/ball_bounce.wav";
             	WTF.race.podium.audio.play();
                 WTF.ctx.restore();
                 WTF.race.podium.drawImages();
