@@ -31,4 +31,9 @@ node wtfqr.js
 and open your browser to
 
 <a>
-localhost:3000
+localhost:3000/race
+
+If you are working with your phone to simulate the connection, you'll need to browse to your computer name before the QR code is generated and keep the phone and computer on the same network, i.e.:
+
+<a>
+jamienewman:3000/race
