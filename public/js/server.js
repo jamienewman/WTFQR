@@ -155,7 +155,7 @@ WTF.race = {
     setupNewRace: function() {
         WTF.race.status = "starting";
 
-        WTF.steps = 10,
+        WTF.steps = 3,
         WTF.xStart = 10,
         WTF.yStart = 261,
         WTF.xOffset = 90,
