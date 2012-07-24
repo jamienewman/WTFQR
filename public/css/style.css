@@ -5,9 +5,9 @@ body.mobileui p{display:block;height:100%;color:#fff;vertical-align:middle;font:
 body.mobileui.playing{background:#0f0;}
 body.mobileui.playing p{color:#000}
 body.mobileui.gameover{background:#f00}
-body.mobileui.winner.position1{background:#5f9f9f}
-body.mobileui.winner.position2{background:#00ff7f}
-body.mobileui.winner.position3{background:#b87333}
+body.mobileui.winner.position1{background:#d9d919}
+body.mobileui.winner.position2{background:#e6e8fa}
+body.mobileui.winner.position3{background:#8c7853}
 body.mobileui.winner p{color:#000}
 a{text-decoration:none;color:#00b7ff}
 h1{font-size:60px;font-weight:bold;margin:0 0 30px;text-shadow:2px 2px 3px #fff;text-align:center;color:#f00}
