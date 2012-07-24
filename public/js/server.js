@@ -372,7 +372,7 @@ WTF.race = {
             WTF.race.podium.background.src = '/img/podium.png';
 
             WTF.ctx.save();
-        	
+
         },
 
         animate: function() {
