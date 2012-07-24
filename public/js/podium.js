@@ -21,6 +21,7 @@ var Podium = {
 		Podium.canvas = Podium.doc.getElementById('podium');
 		Podium.ctx = Podium.canvas.getContext('2d');
 		Podium.ctx.save();
+		Podium.audio = document.getElementById('audio');
 		
 		function canvasSupport() {
 			return !!document.createElement('canvas').getContext;
@@ -77,6 +78,7 @@ var Podium = {
 			}
 			Podium.ctx.drawImage(Podium.background, 300, parseInt(Podium.canvasY, 10));
 		} else {
+			Podium.audio.play();
 			Podium.ctx.restore();
 			Podium.drawImages();
 		}
@@ -100,6 +102,19 @@ var Podium = {
 			Podium.ctx.drawImage(Podium.first, 430, 230);
 		};
 		Podium.first.src = "/img/balotelli.jpg";
+		
+		Podium.playAppluase();
+		
+	},
+	
+	playAppluase : function () {
+		Podium.audio.addEventListener("ended", function() {
+			Podium.audio.src = "/audio/applause-8.wav";
+		    Podium.audio.play();
+		    Podium.audio.addEventListener("ended", function() {
+		    	Podium.audio.pause();
+		    });
+		});
 	}
 	
 };

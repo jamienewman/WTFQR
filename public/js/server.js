@@ -244,6 +244,10 @@ WTF.race = {
         } else {
             WTF.race.nextStage();
         }
+        
+        var themeAudio = document.getElementById('theme');
+        themeAudio.play();
+        
     },
 
     showRace: function(){
@@ -338,8 +342,12 @@ WTF.race = {
         canvasY: 0,
         canvasMaxY: 362,
         podiumXY: [[425,260],[310,310],[540,340]],
+        landingFx : {},
 
         init: function() {
+        	
+        	WTF.race.podium.audio = document.getElementById('audio');
+        	
             WTF.users = WTF.competition.getRacers();
 
             WTF.clearCanvas();
@@ -380,6 +388,7 @@ WTF.race = {
                 }
                 WTF.ctx.drawImage(WTF.race.podium.background, 300, parseInt(WTF.race.podium.canvasY, 10));
             } else {
+            	WTF.race.podium.audio.play();
                 WTF.ctx.restore();
                 WTF.race.podium.drawImages();
             }
@@ -401,6 +410,20 @@ WTF.race = {
 
                 i++;
             }
+            
+            WTF.race.podium.playApplause();
+            
+        },
+        
+        playApplause: function () {
+        	WTF.race.podium.audio.addEventListener("ended", function() {
+            	WTF.race.podium.audio.src = "/audio/applause-8.wav";
+            	WTF.race.podium.audio.play();
+            	WTF.race.podium.audio.addEventListener("ended", function() {
+            		WTF.race.podium.audio.pause();
+    		    });
+    		});
         }
+        
     }
 };
