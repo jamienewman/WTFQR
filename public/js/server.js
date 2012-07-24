@@ -66,22 +66,28 @@ WTF.race = {
             WTF.race.showOpeningCeremony();
         },    
         heat1: function() {
+            WTF.race.stageName = "Heat 1";
             WTF.race.numWinners = 2;
             WTF.race.setupNewRace();
             WTF.race.setupPlayers();
             WTF.race.showRace();
         },
         heat2: function() {
-            WTF.race.stages.heat1();
+            WTF.race.stageName = "Heat 2";
+            WTF.race.numWinners = 2;
+            WTF.race.setupNewRace();
+            WTF.race.setupPlayers();
+            WTF.race.showRace();
         },
         finals: function() {
+            WTF.race.stageName = "Finals";
             WTF.race.numWinners = 3;
             WTF.race.setupNewRace();
             WTF.race.setupPlayers();
             WTF.race.showRace();
         },
         podium: function() {
-            WTF.race.showPodium();
+            WTF.race.podium.init();
         }
     },
 
@@ -251,21 +257,26 @@ WTF.race = {
             WTF.ctx.drawImage(WTF.background, 0, -500);
                 
             WTF.framenumber++;
-            
-            if (WTF.framenumber % 100 === 0 && WTF.countdown){
-                WTF.countdown--;
-            }
 
             WTF.ctx.font = "bold 72px sans-serif";
             WTF.ctx.textAlign = "center";
+            
+            if (WTF.countdown === 4){
+                WTF.ctx.fillText(WTF.race.stage.toUpperCase(), WTF.width / 2, 350);
+            } else {
 
-            if (WTF.countdown >= 2){
-                WTF.ctx.fillText(WTF.countdown-1, WTF.width / 2, 350);
+                if (WTF.countdown >= 1){
+                    WTF.ctx.fillText(WTF.countdown, WTF.width / 2, 350);
+                }
+
+                if (WTF.countdown === 0){
+                    WTF.ctx.fillText("GO", WTF.width / 2, 350);
+                    WTF.race.status = "started";
+                }
             }
 
-            if (WTF.countdown === 1){
-                WTF.ctx.fillText("GO", WTF.width / 2, 350);
-                WTF.race.status = "started";
+            if (WTF.framenumber % 100 === 0 && WTF.countdown >= 0){
+                WTF.countdown--;
             }
 
             for(var userId in WTF.users) {
@@ -298,7 +309,7 @@ WTF.race = {
                         'stage': WTF.race.stage
                     });
 
-                    WTF.competition.setWinner(userId,WTF.race.stage);
+                    WTF.competition.setWinner(userId,WTF.race.stage,WTF.users[userId].position);
 
                     if(WTF.race.playersFinished >= WTF.race.numWinners) {
                         for(var userId in WTF.users) {
@@ -310,14 +321,86 @@ WTF.race = {
                             }
                         }
                         WTF.race.status = "finished";
-                        WTF.race.nextStage();
+                        WTF.ctx.font = "bold 72px sans-serif";
+                        WTF.ctx.textAlign = "center";
+                        WTF.ctx.fillText("END OF "+WTF.race.stage.toUpperCase(), WTF.width / 2, 350);
+                        WTF.ctx.fillText("PLEASE WAIT", WTF.width / 2, 450);
+                        window.setTimeout(WTF.race.nextStage, 5000);
                     }
                 }
             }
         }
     },
 
-    showPodium: function() {
-        console.log("Podium");
+    podium: {
+        carpet: {},
+        background: {},
+        canvasY: 0,
+        canvasMaxY: 362,
+        podiumXY: [[425,260],[310,310],[540,340]],
+
+        init: function() {
+            WTF.users = WTF.competition.getRacers();
+
+            WTF.clearCanvas();
+
+            WTF.rect(0,0, WTF.width, WTF.height);
+
+            WTF.ctx.drawImage(WTF.background, 0, 0);
+
+            WTF.race.podium.carpet = new Image();
+            WTF.race.podium.carpet.onload = function () {
+                WTF.ctx.drawImage(WTF.race.podium.carpet, 0, 480);
+            };
+            WTF.race.podium.carpet.src = '/img/red-carpet.png';
+            WTF.race.podium.background = new Image();
+            WTF.race.podium.background.onload = function () {
+                WTF.ctx.drawImage(WTF.race.podium.background, 300, WTF.race.podium.canvasMaxY);
+                WTF.race.podium.animate();
+            };
+            WTF.race.podium.background.src = '/img/podium.png';
+
+            WTF.ctx.save();
+        },
+
+        animate: function() {
+            if (WTF.race.podium.canvasY <= WTF.race.podium.canvasMaxY) {
+                WTF.ctx.rotate(0);
+                requestAnimationFrame(WTF.race.podium.animate);
+                WTF.clearCanvas();
+
+                WTF.rect(0,0, WTF.width, WTF.height);
+
+                WTF.ctx.drawImage(WTF.background, 0, parseInt("-"+WTF.canvasMaxY));
+                WTF.ctx.drawImage(WTF.race.podium.carpet, 0, 480);
+                WTF.race.podium.canvasY = WTF.race.podium.canvasY + 7;
+                if (WTF.race.podium.canvasY >= 360) {
+                    WTF.ctx.translate(-100, 140);
+                    WTF.ctx.rotate(-0.23);
+                }
+                WTF.ctx.drawImage(WTF.race.podium.background, 300, parseInt(WTF.race.podium.canvasY, 10));
+            } else {
+                WTF.ctx.restore();
+                WTF.race.podium.drawImages();
+            }
+        },
+
+        drawImages: function () {
+            var i = 0;
+
+            for(var userId in WTF.users) {
+                var podiumPlayer = new Image();
+                var positionIndex = WTF.users[userId].position-1;
+
+                (function (podiumPlayer,positionIndex) {
+                    podiumPlayer.onload = function () {
+                        WTF.ctx.drawImage(podiumPlayer, WTF.race.podium.podiumXY[positionIndex][0], WTF.race.podium.podiumXY[positionIndex][1], 90, 90);
+                    };
+                }(podiumPlayer,positionIndex));               
+                podiumPlayer.src = WTF.users[userId].photo.src;
+
+                i++;
+            }
+        }
     }
 };

@@ -226,6 +226,12 @@ io.sockets.on('connection', function (socket){
   socket.on('playerFinished', function(data){
     users[data.username].position = data.position;
 
+    console.log({
+      'username': data.username,
+      'position': data.position,
+      'stage': data.stage
+    });
+
     socket.broadcast.to(data.channelName).emit("playerFinish", {
       'username': data.username,
       'position': data.position,
@@ -237,10 +243,6 @@ io.sockets.on('connection', function (socket){
     console.log("Player state: "+data.toString());
 
     socket.broadcast.to(data.channelName).emit("playerState", data);
-  });
-  
-  socket.on('removeName', function(data){
-    console.log('Removing user '+data.username);
   });
 
   socket.on('disconnect', function(data){

@@ -5,6 +5,7 @@ function Competition(numPlayers,userData) {
     this.categorisedUsers_ = {};
 
     this.states_ = ["waiting","opening","heat1","heat2","finals","podium"];
+    this.finalPosition_ = 1;
 
     for(var i=0; i<this.states_.length; i++) {
         this.categorisedUsers_[this.states_[i]] = {};
@@ -42,7 +43,7 @@ Competition.prototype.getRacers = function () {
     return this.categorisedUsers_[this.states_[this.stateIndex_]];
 };
 
-Competition.prototype.setWinner = function (userId,stage) {
+Competition.prototype.setWinner = function (userId,stage,position) {
     var finalState = {};
     if(stage.indexOf('heat') >= 0) {
         finalState = this.categorisedUsers_[this.states_[4]];
@@ -50,5 +51,6 @@ Competition.prototype.setWinner = function (userId,stage) {
     } else if (stage.indexOf('finals') >= 0) {
         finalState = this.categorisedUsers_[this.states_[5]];
         finalState[userId] = this.userData_[userId];
+        finalState[userId].position = position;
     }
 };

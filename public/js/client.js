@@ -15,8 +15,6 @@ WTF.socket.on('connect', function (data){
         if(data.username === WTF.username) {
             switch(data.state) {
                 case "winner":
-                    $('body.mobileui').attr('class', "mobileui winner");
-                    $('.mobile p').text('Winner! Position: '+data.position);
                     break;
                 case "gameover":
                     $('body.mobileui').attr('class', "mobileui gameover");
@@ -65,8 +63,10 @@ WTF.controls = {
 };
 
 WTF.playerFinish = function(position) {
-    $('.controls').remove();
-    $('h1').append('<h2>Congratulations!</h2><h3>You came <strong>'+ord(position)+'</strong>!</h3>');
+    if(position !== null) {
+        $('body.mobileui').attr('class', "mobileui winner position"+position);
+        $('.mobile').html('<p>You came <strong>'+position+''+ord(position)+'</strong>!</p>');    
+    }
 };
 
 if($('body').attr('id') !== "") {
@@ -78,9 +78,3 @@ if($('body').attr('id') !== "") {
 
     WTF.controls.init();
 }
-
-$(window).on('beforeunload', function() {
-    WTF.socket.emit('removeName', {
-        'username': WTF.username
-    });
-});
