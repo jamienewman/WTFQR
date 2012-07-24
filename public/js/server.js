@@ -369,12 +369,13 @@ WTF.race = {
             WTF.race.podium.background.src = '/img/podium.png';
 
             WTF.ctx.save();
+            
+            WTF.race.podium.audio.src="/audio/cartoonbombdrop.wav";
+        	WTF.race.podium.audio.play();
+        	
         },
 
         animate: function() {
-        	
-        	WTF.race.podium.audio.src="/audio/cartoonbombdrop.wav";
-        	WTF.race.podium.audio.play();
         	
             if (WTF.race.podium.canvasY <= WTF.race.podium.canvasMaxY) {
                 WTF.ctx.rotate(0);
@@ -392,6 +393,7 @@ WTF.race = {
                 }
                 WTF.ctx.drawImage(WTF.race.podium.background, 300, parseInt(WTF.race.podium.canvasY, 10));
             } else {
+            	WTF.race.podium.audio.pause();
             	WTF.race.podium.audio.src="/audio/ball_bounce.wav";
             	WTF.race.podium.audio.play();
                 WTF.ctx.restore();

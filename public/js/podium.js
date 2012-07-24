@@ -40,6 +40,10 @@ var Podium = {
 	},
 	
 	render : function () {
+		
+		Podium.audio.src= "/audio/cartoonbombdrop.wav";
+		Podium.audio.play();
+		
 		Podium.carpet = new Image();
 		Podium.carpet.onload = function () {
 			Podium.ctx.drawImage(Podium.carpet, 0, 400);
@@ -51,6 +55,7 @@ var Podium = {
 			Podium.animate();
 		};
 		Podium.background.src = '/img/podium.png';
+		
 	},
 	
 	clearCanvas : function () {
@@ -66,6 +71,8 @@ var Podium = {
 	},
 	
 	animate : function () {
+		
+		
 		if (Podium.canvasY <= Podium.canvasMaxY) {
 			Podium.ctx.rotate(0);
 			requestAnimationFrame(Podium.animate);
@@ -78,6 +85,8 @@ var Podium = {
 			}
 			Podium.ctx.drawImage(Podium.background, 300, parseInt(Podium.canvasY, 10));
 		} else {
+			Podium.audio.pause();
+			Podium.audio.src="/audio/ball_bounce.wav";
 			Podium.audio.play();
 			Podium.ctx.restore();
 			Podium.drawImages();
@@ -103,11 +112,11 @@ var Podium = {
 		};
 		Podium.first.src = "/img/balotelli.jpg";
 		
-		Podium.playAppluase();
+		Podium.playApplause();
 		
 	},
 	
-	playAppluase : function () {
+	playApplause : function () {
 		Podium.audio.addEventListener("ended", function() {
 			Podium.audio.src = "/audio/applause-8.wav";
 		    Podium.audio.play();
