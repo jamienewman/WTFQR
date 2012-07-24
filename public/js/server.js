@@ -245,7 +245,7 @@ WTF.race = {
             WTF.race.nextStage();
         }
         
-        var themeAudio = document.getElementById('theme');
+        var themeAudio = document.getElementById('audio');
         themeAudio.play();
         
     },
