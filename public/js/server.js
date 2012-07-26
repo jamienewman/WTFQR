@@ -64,7 +64,7 @@ WTF.race = {
     reset: function() {
         WTF.canvasY = 0;
         WTF.users = null;
-        WTF.socket.emit('reset', {});
+        WTF.socket.emit('resetRace', {});
     },
 
     stages: {

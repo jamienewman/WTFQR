@@ -31,8 +31,9 @@ WTF.socket.on('connect', function (data){
         }
     });
 
-    WTF.socket.on('reset', function() {
-        location.href('/race');
+    WTF.socket.on('resetRace', function() {
+            location.href('/join');
+        });
     });
 });
 
