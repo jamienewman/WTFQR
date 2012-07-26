@@ -1,8 +1,10 @@
 section.race
 	
-	canvas#canvas(width="790", height="600")
+	canvas#canvas(width="760", height="600")
 
 	audio#audio(src="/audio/LibertyBellMarch.mp3")
+
+	img(src="#{image}", id="qr", width="250", height="250")
 
 div#fb-root
 
@@ -15,7 +17,7 @@ div#social
 
 	a.twitter-share-button(href="https://twitter.com/share", data-url="http://www.facebook.com/LBiUK/app_251624868290027", data-hashtags="lbiolympics", data-lang="en", data-related="lbilondon", data-via="lbilondon", data-text="I'm running in the #lbiolympics") Tweet
 
-	div.fb-like(data-href="http://www.facebook.com/LBiUK/app_251624868290027", data-send="true", data-width="350", data-show-faces="true")
+	div.fb-like(data-href="http://www.facebook.com/LBiUK/app_251624868290027", data-show-faces="false", data-send="true", data-width="350", data-show-faces="true")
 
 script(src="/js/zepto.js")
 script(src="/socket.io/socket.io.js")
