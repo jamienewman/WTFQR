@@ -30,6 +30,10 @@ WTF.socket.on('connect', function (data){
             };
         }
     });
+
+    WTF.socket.on('reset', function() {
+        location.href('/race');
+    });
 });
 
 WTF.controls = {

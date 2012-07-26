@@ -22,16 +22,24 @@ var app = express.createServer()
 var numPlayers = 8;
 
 //users = {"Twitter98617177":{"name":"Jamie Collins","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=Collins1892"},"Facebook505411268":{"name":"Sukhdev Singh Shah","photoSrc":"http://graph.facebook.com/sukhdev.shah/picture"},"Twitter36623029":{"name":"Jasal Vadgama","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=donofkarma"}};
-users = {
+initialUsers = {
           "Test1": {"name":"Jamie Newman","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=jamienewman"},
           "Test2":{"name":"Jamie Collins","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=Collins1892"},
           "Test3":{"name":"Sukhdev Singh Shah","photoSrc":"http://graph.facebook.com/sukhdev.shah/picture"},
           "Test4":{"name":"Jamie Collins","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=Collins1892"},
-          //"Facebook505411268":{"name":"Sukhdev Singh Shah","photoSrc":"http://graph.facebook.com/sukhdev.shah/picture"},
-          //"Twitter98617177":{"name":"Jamie Collins","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=Collins1892"},
-          //"Facebook826600572":{"name":"Nicola Newman","photoSrc":"http://graph.facebook.com/nicola.newman81/picture"},
+          "Test5":{"name":"Sukhdev Singh Shah","photoSrc":"http://graph.facebook.com/sukhdev.shah/picture"},
+          "Test6":{"name":"Jamie Collins","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=Collins1892"},
+          "Test7":{"name":"Nicola Newman","photoSrc":"http://graph.facebook.com/nicola.newman81/picture"},
         };
 //users["Twitter15377059"] = {"name":"Jamie Newman","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=jamienewman"};
+
+var initUsers = function() {
+  if(initialUsers !== null) {
+    users = initialUsers;
+  }
+};
+
+initUsers();
 
 passport.serializeUser(function(user, done) {
   done(null, user);
@@ -200,6 +208,7 @@ var port = process.env.PORT || 3000;
 
 app.listen(port, function(){
   console.log("WTFQR server listening on port %d in %s mode", app.address().port, app.settings.env);
+  console.log(users);
 });
 
 // Socket.io
@@ -257,6 +266,15 @@ io.sockets.on('connection', function (socket){
     console.log(data);
 
     socket.broadcast.to(data.channelName).emit("raceData", data);
+
+  });
+
+  socket.on('reset', function (data){
+    console.log('Resetting');
+
+    initUsers();
+
+    socket.broadcast.to(data.channelName).emit("reset");
 
   });
 

@@ -61,6 +61,12 @@ WTF.race = {
     status: "",
     debugMode: true,
 
+    reset: function() {
+        WTF.canvasY = 0;
+        WTF.users = null;
+        WTF.socket.emit('reset', {});
+    },
+
     stages: {
         opening: function() {
             WTF.race.showOpeningCeremony();
@@ -101,6 +107,15 @@ WTF.race = {
 
                 for(var userId in WTF.users) {
                     if(i++ == player) {
+                        WTF.race.registerMove(userId, "left");
+                        WTF.race.registerMove(userId, "left");
+                        WTF.race.registerMove(userId, "left");
+                        WTF.race.registerMove(userId, "left");
+                        WTF.race.registerMove(userId, "left");
+                        WTF.race.registerMove(userId, "left");
+                        WTF.race.registerMove(userId, "left");
+                        WTF.race.registerMove(userId, "left");
+                        WTF.race.registerMove(userId, "left");
                         WTF.race.registerMove(userId, "left");
                     }
                 }
@@ -430,6 +445,8 @@ WTF.race = {
             		WTF.race.podium.audio.pause();
     		    });
     		});
+
+            window.setTimeout(WTF.race.reset, 5000);
         }
         
     }
