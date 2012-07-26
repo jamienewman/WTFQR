@@ -15,16 +15,16 @@ h1{font-size:60px;font-weight:bold;margin:0 0 30px;text-shadow:2px 2px 3px #fff;
 .mobileui .join{text-align:left;}
 .mobileui .join h1{margin:0;font-size:40px;color:#f00}
 .controls{display:block;text-align:center}
-.controls margin 0auto{-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-ms-box-orient:horizontal;box-orient:horizontal;-webkit-box-align:center;-moz-box-align:center;-ms-box-align:center;box-align:center;-webkit-box-pack:center;-moz-box-pack:center;-ms-box-pack:center;box-pack:center;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px}
+.controls margin 0auto{-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-ms-box-orient:horizontal;box-orient:horizontal;-webkit-box-align:center;-moz-box-align:center;-ms-box-align:center;box-align:center;-webkit-box-pack:center;-moz-box-pack:center;-ms-box-pack:center;box-pack:center;-webkit-border-radius:5px;border-radius:5px}
 .controls a{text-decoration:none;display:inline-block;padding:10% 0;width:50%;margin:2.5% 0 0 0;color:#252525;font-size:18px;text-shadow:1px 1px 2px #ccc}
 .controls a img{margin:0;padding:0}
 .left,.right{display:none}
 .home{text-align:center;width:45%;margin:0 auto;}
 .home p{font-size:24px;margin:0 0 30px;text-shadow:2px 2px 3px #fff;color:#f00}
-.home img{-webkit-box-shadow:0 40px 46px -6px #ccc;-moz-box-shadow:0 40px 46px -6px #ccc;box-shadow:0 40px 46px -6px #ccc;border:1px solid #fcfcfc}
+.home img{-webkit-box-shadow:0 40px 46px -6px #ccc;box-shadow:0 40px 46px -6px #ccc;border:1px solid #fcfcfc}
 .race p{font-size:24px;margin:0 0 30px;text-shadow:2px 2px 3px #fff;text-align:center}
 .race .racers{margin:2em auto;width:50%;}
 .race .racers ol{list-style-type:bullet;}
 .race .racers ol li{text-align:left;margin:2em 0}
 .race .racers ol img{vertical-align:middle}
-canvas{-webkit-box-shadow:0 40px 46px -6px #ccc;-moz-box-shadow:0 40px 46px -6px #ccc;box-shadow:0 40px 46px -6px #ccc;border:1px solid #fcfcfc;margin:0 auto;display:block}
+canvas{-webkit-box-shadow:0 40px 46px -6px #ccc;box-shadow:0 40px 46px -6px #ccc;border:1px solid #fcfcfc;margin:0 auto;display:block}

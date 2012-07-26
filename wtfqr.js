@@ -109,8 +109,8 @@ app.get('/', function(req, res){
 
 app.get('/join', function(req, res){
   passport.use(new TwitterStrategy({
-      consumerKey: '6olMOiTALuonaaOkJ9sjQ',
-      consumerSecret: '2nwMhMl5ihSYo1MDqGi7B9TVQO7A7PS0pnpDF3pDc9c',
+      consumerKey: '7uAQxgzBKyOd3q4A8WlA',
+      consumerSecret: 'cruzj02mzvgx8BgYf3QlN2tE6PkE7OTOgATbIDI9eQ',
       callbackURL: "http://"+req.headers.host+"/auth/twitter/callback"
     },
     function(token, tokenSecret, profile, done){
@@ -121,8 +121,8 @@ app.get('/join', function(req, res){
   ));
 
   passport.use(new FacebookStrategy({
-      clientID: '328866273857515',
-      clientSecret: '90a2283a9f1ead52d138c64de737710b',
+      clientID: '251624868290027',
+      clientSecret: '15b8c293e689879a88f318d09c694290',
       callbackURL: "http://"+req.headers.host+"/auth/facebook/callback"
     },
     function(accessToken, refreshToken, profile, done){
