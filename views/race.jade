@@ -10,7 +10,13 @@ section.race
 
 div#fb-root
 
-div.fb-like(data-send="true", data-width="450", data-show-faces="true",)
+div#social
+
+	div.fb-like(data-send="true", data-width="250", data-show-faces="true")
+
+	a.twitter-share-button(href="https://twitter.com/share", data-hashtags="lbiolympics", data-lang="en", data-related="lbilondon", data-via="lbilondon", data-text="I'm running in the #lbiolympics") Tweet
+
+	div.g-plusone(data-annotation="inline", data-width="150")
 
 script(src="/js/zepto.js")
 script(src="/socket.io/socket.io.js")
