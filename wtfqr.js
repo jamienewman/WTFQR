@@ -93,18 +93,30 @@ app.configure('production', function(){
 
 app.get('/', function(req, res){
 
-    console.log(req.headers.host);
+  encoder.toDataURL('http://' + req.headers.host + '/join', function(err, png){
 
-    encoder.toDataURL('http://' + req.headers.host + '/join', function(err, png){
-
-        res.render('index', { 
-            title: 'WTFQR',
-            image: png,
-            numPlayers: numPlayers
-        });
-    
+    res.render('race', {
+      title: 'LBi Olympics',
+      users: users,
+      image: png,
+      numPlayers: numPlayers
     });
-  
+    
+  });
+});
+
+app.post('/', function(req, res){
+
+  encoder.toDataURL('http://' + req.headers.host + '/join', function(err, png){
+
+    res.render('race', {
+      title: 'LBi Olympics',
+      users: users,
+      image: png,
+      numPlayers: numPlayers
+    });
+    
+  });
 });
 
 app.get('/join', function(req, res){
@@ -178,7 +190,7 @@ app.get('/race', function(req, res){
   encoder.toDataURL('http://' + req.headers.host + '/join', function(err, png){
 
     res.render('race', {
-      title: 'WTFQR Race',
+      title: 'LBi Olympics',
       users: users,
       image: png,
       numPlayers: numPlayers
@@ -187,6 +199,19 @@ app.get('/race', function(req, res){
   });
 });
 
+app.post('/race', function(req, res){
+
+  encoder.toDataURL('http://' + req.headers.host + '/join', function(err, png){
+
+    res.render('race', {
+      title: 'LBi Olympics',
+      users: users,
+      image: png,
+      numPlayers: numPlayers
+    });
+    
+  });
+});
 
 app.get('/ui', function(req, res){
   

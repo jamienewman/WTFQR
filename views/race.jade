@@ -1,6 +1,6 @@
 section.race
 	
-	canvas#canvas(width="960", height="600")
+	canvas#canvas(width="790", height="600")
 
 	audio#audio(src="/audio/LibertyBellMarch.mp3")
 
@@ -11,11 +11,11 @@ div#social
 	img(src="/img/logo_LBi_red.gif")
 
 	div.gplus
-		div.g-plusone(data-annotation="inline", data-width="150")
+		div.g-plusone(data-annotation="inline", data-width="150", data-href="http://www.facebook.com/LBiUK/app_251624868290027")
 
-	a.twitter-share-button(href="https://twitter.com/share", data-hashtags="lbiolympics", data-lang="en", data-related="lbilondon", data-via="lbilondon", data-text="I'm running in the #lbiolympics") Tweet
+	a.twitter-share-button(href="https://twitter.com/share", data-url="http://www.facebook.com/LBiUK/app_251624868290027", data-hashtags="lbiolympics", data-lang="en", data-related="lbilondon", data-via="lbilondon", data-text="I'm running in the #lbiolympics") Tweet
 
-	div.fb-like(data-send="true", data-width="350", data-show-faces="true")
+	div.fb-like(data-href="http://www.facebook.com/LBiUK/app_251624868290027", data-send="true", data-width="350", data-show-faces="true")
 
 script(src="/js/zepto.js")
 script(src="/socket.io/socket.io.js")
@@ -28,10 +28,20 @@ script
 	WTF.users = !{JSON.stringify(users)};
 	WTF.remainingPlayers = WTF.numPlayers;
 	for(var i in WTF.users) {
-		WTF.remainingPlayers--;
+	WTF.remainingPlayers--;
 	}
 	WTF.qrImage = new Image();
 	WTF.qrImage.onload = function() {
 		WTF.setupCanvas();
 	};
 	WTF.qrImage.src = "!{image}";
+
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-33688379-1']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
