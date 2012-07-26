@@ -20,6 +20,10 @@ WTF.socket.on('connect', function (data){
        WTF.race.registerMove(data.userId, data.foot);
     });
 
+    WTF.socket.on('resetRace', function() {
+        location.href('/race');
+    });
+
 });
 
 WTF.setupCanvas = function() {

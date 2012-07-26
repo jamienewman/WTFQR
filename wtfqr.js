@@ -269,12 +269,12 @@ io.sockets.on('connection', function (socket){
 
   });
 
-  socket.on('reset', function (data){
+  socket.on('resetRace', function (data){
     console.log('Resetting');
 
     initUsers();
 
-    socket.broadcast.to(data.channelName).emit("reset");
+    socket.broadcast.to(data.channelName).emit("resetRace");
 
   });
 
