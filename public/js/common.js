@@ -33,3 +33,22 @@ function ord(n){
 var WTF = WTF || {};
 
 WTF.socket = io.connect( window.location.origin );
+
+window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '251624868290027', 
+      status     : true, 
+      frictionlessRequests : true,
+      cookie     : true, 
+      xfbml      : true  
+    });
+
+// Additional initialization code here
+};
+(function(d){
+ var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+ if (d.getElementById(id)) {return;}
+ js = d.createElement('script'); js.id = id; js.async = true;
+ js.src = "//connect.facebook.net/en_US/all.js";
+ ref.parentNode.insertBefore(js, ref);
+}(document));
