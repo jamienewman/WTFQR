@@ -1,6 +1,6 @@
 {
-  "name": "WTFQR",
-  "version": "0.0.1",
+  "name": "LBi Olympics",
+  "version": "0.0.1-2",
   "private": true,
   "repositories": [
     {
@@ -25,7 +25,7 @@
   "engines": {
     "node": "0.6.x"
   },
-  "subdomain": "wtfqr",
+  "subdomain": "lbiolympics",
   "scripts": {
     "start": "wtfqr.js"
   },
