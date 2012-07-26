@@ -63,3 +63,30 @@ window.fbAsyncInit = function() {
 
 !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
 
+// This function when initiated via a user click 
+// renders the FB dialog to invite friends to the app
+WTF.inviteFriends = function(){
+  FB.ui({
+    method: 'apprequests',
+    title: 'LBi Olympics',
+    message: 'Compete in the LBi Olympics! Scan the QR code with your phone and use your phone as a remote control in the race!'
+  }, function(resp){
+    console.log(resp);
+  });
+};
+
+// This function when initiated via a user click 
+// renders the FB dialog to share to my wall
+WTF.shareToWall = function(){
+  FB.ui({
+    method: 'feed',
+    link: 'http://www.facebook.com/LBiUK/app_251624868290027',
+    picture: 'http://lbi-olympics.nodejitsu.com/img/logo_LBi_red.gif',
+    name: 'LBi Olympics',
+    caption: 'LBi Olympics',
+    description: 'Compete in the LBi Olympics! Scan the QR code with your phone and use your phone as a remote control in the race!'
+  }, function(resp){
+    console.log(resp);
+  });
+};
+
