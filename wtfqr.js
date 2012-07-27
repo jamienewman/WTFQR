@@ -66,7 +66,9 @@ app.configure(function(){
   app.use(express.cookieParser()); 
   app.use(express.session({ secret: 'afhf9q8h21ejhdaskjdlasjda'}));
   app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
+  
+  var oneYear = 31557600000;
+  app.use(express.static(__dirname + '/public', { maxAge: oneYear }));
 });
 
 // Allows for the use of nib plugin for Stylus -- gradient, box-shadow etc mixins
@@ -215,7 +217,6 @@ var port = process.env.PORT || 3000;
 
 app.listen(port, function(){
   console.log("WTFQR server listening on port %d in %s mode", app.address().port, app.settings.env);
-  console.log(users);
 });
 
 // Socket.io
@@ -229,14 +230,15 @@ io.sockets.on('connection', function (socket){
 
     var photos = [];
 
+    var remainingPlayers = LOL.numPlayers;
+
     for(var j in users) {
-      i++;
+      remainingPlayers--;
     }
 
-    socket.broadcast.to(data.channelName).emit("playerCount", JSON.stringify({
-      "number": i,
-      "users": users
-    }));
+    console.log('Remaining: '+remainingPlayers);
+
+    LOL.remainingPlayers = remainingPlayers;
   });
 
   socket.on('playerFinished', function(data){
@@ -289,6 +291,8 @@ io.sockets.on('connection', function (socket){
 
 var LOL = LOL || {};
 
+LOL.width = 810;
+LOL.height = 1100;
 LOL.numPlayers = numPlayers;
 LOL.users = users;
 LOL.remainingPlayers = LOL.numPlayers;
@@ -407,7 +411,11 @@ LOL.race = {
     },
 
     init: function() {
+      if(io.sockets.clients().length > 0) {
         LOL.race.showWaiting();
+      } else {
+        setTimeout(LOL.race.init, 500);
+      }
     },
 
     start: function() {
@@ -495,29 +503,20 @@ LOL.race = {
         }
     },
 
-    drawDataImage: function(imageData, x, y, width, height) {
-        if(width === null && height === null) {
-            LOL.race.drawBuffer.push({
-                type: "dataImage",
-                imageData: imageData,
-                x: x,
-                y: y
-            });
-        } else {
-            LOL.race.drawBuffer.push({
-                type: "dataImage",
-                imageData: imageData,
-                x: x,
-                y: y,
-                width: width,
-                height: height
-            });
-        }
+    drawQRImage: function(x, y, width, height) {
+        LOL.race.drawBuffer.push({
+            type: "qrImage",
+            x: x,
+            y: y,
+            width: width,
+            height: height
+        });
     },
 
     drawText: function(text,x,y,font,textAlign,fillStyle,strokeStyle) {
         LOL.race.drawBuffer.push({
             type: "text",
+            text: text,
             x: x,
             y: y,
             font: font,
@@ -528,16 +527,17 @@ LOL.race = {
     },
 
     showWaiting: function() {
+        console.log(LOL.remainingPlayers);
         if(LOL.remainingPlayers > 0) {
 
-            setTimeout(LOL.race.showWaiting, 100);
+            setTimeout(LOL.race.showWaiting, 5000);
 
             LOL.race.drawBuffer = [];
 
             LOL.race.drawRect(0,0, LOL.width, LOL.height);
 
             LOL.race.drawImage(LOL.race.backgroundSrc, -150, 0, null, null);
-            LOL.race.drawDataImage('qrImageSrc', 265, 80, 300, 300);
+            LOL.race.drawQRImage(265, 80, 300, 300);
 
             var xPos = 200,
                 yMultiplier = 1;
@@ -546,9 +546,9 @@ LOL.race = {
             for(var userId in LOL.users) {
                 if(yMultiplier > 4) {
                     yMultiplier = 1;
-                    xPos = 720;
+                    xPos = 580;
                 }
-                LOL.race.drawImage(LOL.users[userId].photoSrc, xPos, (80 * yMultiplier), 50, 50);
+                LOL.race.drawImage(LOL.users[userId].photoSrc, xPos, (80 * yMultiplier++), 50, 50);
             }
 
             LOL.race.drawText("Waiting for "+LOL.remainingPlayers+ " players", (LOL.width /2), 450, "bold 36px sans-serif", "center", "black", "black");
@@ -657,5 +657,62 @@ LOL.race = {
             }
         }
         LOL.race.sendDrawBuffer();
+    }
+};
+
+function Competition(numPlayers,userData) {
+    this.numPlayers_ = numPlayers;
+    this.userData_ = userData;
+
+    this.categorisedUsers_ = {};
+
+    this.states_ = ["waiting","opening","heat1","heat2","finals","podium"];
+    this.finalPosition_ = 1;
+
+    for(var i=0; i<this.states_.length; i++) {
+        this.categorisedUsers_[this.states_[i]] = {};
+    }
+
+    var i = 0;
+
+    for(var userId in userData) {
+        var currentState = {};
+        if(i < 4) {
+            currentState = this.categorisedUsers_[this.states_[2]];
+        } else {
+            currentState = this.categorisedUsers_[this.states_[3]];
+        }
+
+        currentState[userId] = userData[userId];
+
+        i++;
+    }
+
+    this.stateIndex_ = 0;
+};
+
+Competition.prototype.getCurrentStage = function () {
+    return this.states_[this.stateIndex_];
+};
+
+Competition.prototype.nextStage = function () {
+    this.stateIndex_++;
+    return;
+};
+
+Competition.prototype.getRacers = function () {
+    console.log(this.stateIndex_,this.states_[this.stateIndex_],this.categorisedUsers_[this.states_[this.stateIndex_]])
+    return this.categorisedUsers_[this.states_[this.stateIndex_]];
+};
+
+Competition.prototype.setWinner = function (userId,stage,position) {
+    var finalState = {};
+    if(stage.indexOf('heat') >= 0) {
+        finalState = this.categorisedUsers_[this.states_[4]];
+        finalState[userId] = this.userData_[userId];
+    } else if (stage.indexOf('finals') >= 0) {
+        finalState = this.categorisedUsers_[this.states_[5]];
+        finalState[userId] = this.userData_[userId];
+        finalState[userId].position = position;
     }
 };
