@@ -30,9 +30,9 @@ function ord(n){
     return ((r < 11 || r > 19) && (i < 4)) ? ['th','st','nd','rd'][i] : 'th';
 }
 
-var WTF = WTF || {};
+var LOL = LOL || {};
 
-WTF.socket = io.connect( window.location.origin );
+LOL.socket = io.connect( window.location.origin );
 
 window.fbAsyncInit = function() {
     FB.init({
@@ -65,7 +65,7 @@ window.fbAsyncInit = function() {
 
 // This function when initiated via a user click 
 // renders the FB dialog to invite friends to the app
-WTF.inviteFriends = function(){
+LOL.inviteFriends = function(){
   FB.ui({
     method: 'apprequests',
     title: 'LBi Olympics',
@@ -77,7 +77,7 @@ WTF.inviteFriends = function(){
 
 // This function when initiated via a user click 
 // renders the FB dialog to share to my wall
-WTF.shareToWall = function(){
+LOL.shareToWall = function(){
   FB.ui({
     method: 'feed',
     link: 'http://www.facebook.com/LBiUK/app_251624868290027',

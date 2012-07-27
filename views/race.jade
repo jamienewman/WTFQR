@@ -1,10 +1,8 @@
 section.race
 	
-	canvas#canvas(width="760", height="600")
+	canvas#canvas(width="810", height="600")
 
 	audio#audio(src="/audio/LibertyBellMarch.mp3")
-
-	img(src="#{image}", id="qr", width="250", height="250")
 
 div#fb-root
 
@@ -21,22 +19,15 @@ div#social
 
 script(src="/js/zepto.js")
 script(src="/socket.io/socket.io.js")
-script(src="/js/competition.js")
 script(src="/js/common.js")
 script(src="/js/server.js")
 script
-	var WTF = WTF || {};
-	WTF.numPlayers = !{numPlayers};
-	WTF.users = !{JSON.stringify(users)};
-	WTF.remainingPlayers = WTF.numPlayers;
-	for(var i in WTF.users) {
-	WTF.remainingPlayers--;
-	}
-	WTF.qrImage = new Image();
-	WTF.qrImage.onload = function() {
-		WTF.setupCanvas();
-	};
-	WTF.qrImage.src = "!{image}";
+	var LOL = LOL || {};
+
+	var imagesToPreload = [!{imageURLs}];
+	var qrImage = '!{qrImageSrc}';
+
+	LOL.preloadAssets(imagesToPreload);
 
 	var _gaq = _gaq || [];
 	_gaq.push(['_setAccount', 'UA-33688379-1']);
