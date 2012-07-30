@@ -12,7 +12,8 @@ var express = require('express')
   , FacebookStrategy = require('passport-facebook').Strategy
   , TwitterStrategy = require('passport-twitter').Strategy
   , io = require('socket.io')
-  , os = require('os');
+  , os = require('os')
+  , gzippo = require('gzippo');
 
 
 var app = express.createServer()
@@ -66,9 +67,10 @@ app.configure(function(){
   app.use(express.cookieParser()); 
   app.use(express.session({ secret: 'afhf9q8h21ejhdaskjdlasjda'}));
   app.use(app.router);
-  
+
   var oneYear = 31557600000;
-  app.use(express.static(__dirname + '/public', { maxAge: oneYear }));
+  //app.use(express.static(__dirname + '/public', { maxAge: oneYear }));
+  app.use(gzippo.staticGzip(__dirname + '/public', { clientMaxAge: oneYear, maxAge: oneYear }));
 });
 
 // Allows for the use of nib plugin for Stylus -- gradient, box-shadow etc mixins
@@ -263,6 +265,26 @@ io.sockets.on('connection', function (socket){
     socket.broadcast.to(data.channelName).emit("playerState", data);
   });
 
+  socket.on('debugMove', function(data){
+    console.log("Debug move: "+data.toString());
+
+    var j = 0;
+
+    for(var i in LOL.users) {
+      if(j === parseInt(data.player)) {
+        LOL.race.registerMove(i,'left');
+        LOL.race.registerMove(i,'right');
+        LOL.race.registerMove(i,'left');
+        LOL.race.registerMove(i,'right');
+        LOL.race.registerMove(i,'left');
+        LOL.race.registerMove(i,'right');
+        LOL.race.registerMove(i,'left');
+        LOL.race.registerMove(i,'right');
+      }
+      j++;
+    }
+  });
+
   socket.on('disconnect', function(data){
     console.log('DISCONNECTING');
   });
@@ -322,6 +344,7 @@ LOL.race = {
 
     sendDrawBuffer: function() {
       //console.log(LOL.race.drawBuffer);
+      console.log('drawing');
       io.sockets.emit('raceData', {
         canvasData: LOL.race.drawBuffer
       });
@@ -334,7 +357,8 @@ LOL.race = {
 
     stages: {
         opening: function() {
-            LOL.race.showOpeningCeremony();
+            //LOL.race.showOpeningCeremony();
+            LOL.race.nextStage();
         },    
         heat1: function() {
             LOL.race.stageName = "Heat 1";
@@ -411,6 +435,7 @@ LOL.race = {
     },
 
     init: function() {
+      console.log('init');
       if(io.sockets.clients().length > 0) {
         LOL.race.showWaiting();
       } else {
@@ -456,6 +481,8 @@ LOL.race = {
     setupPlayers: function() {
         var i = 0;
 
+        console.log("Users: "+LOL.users.toString());
+
         LOL.users = LOL.competition.getRacers();
 
         for(var userId in LOL.users) {
@@ -464,7 +491,7 @@ LOL.race = {
             LOL.users[userId].imageSrc = 'img/runner'+i+'.png';
             LOL.users[userId].playing = true;
             LOL.users[userId].position = null;
-            LOL.socket.emit('playerState', {
+            io.sockets.emit('playerState', {
                 'username': userId,
                 'state': 'playing'
             });
@@ -527,10 +554,11 @@ LOL.race = {
     },
 
     showWaiting: function() {
+      console.log('waiting');
         console.log(LOL.remainingPlayers);
         if(LOL.remainingPlayers > 0) {
 
-            setTimeout(LOL.race.showWaiting, 5000);
+            setTimeout(LOL.race.showWaiting, 1000);
 
             LOL.race.drawBuffer = [];
 
@@ -559,14 +587,15 @@ LOL.race = {
     },
 
     showOpeningCeremony: function() {
+      console.log('ceremony');
         if(LOL.canvasY <= LOL.canvasMaxY) {
             LOL.race.drawBuffer = [];
 
-            setTimeout(LOL.race.showOpeningCeremony, 100);
+            setTimeout(LOL.race.showOpeningCeremony, 1000);
 
             LOL.race.drawRect(0,0, LOL.width, LOL.height);
             
-            LOL.race.drawImage(LOL.backgroundSrc, 150, parseInt("-"+(++LOL.canvasY), 10));
+            LOL.race.drawImage(LOL.race.backgroundSrc, -150, parseInt("-"+(++LOL.canvasY), 10));
         } else {
             LOL.race.nextStage();
         }
@@ -579,14 +608,15 @@ LOL.race = {
     },
 
     showRace: function(){
+        console.log('race');
         if(LOL.race.status.indexOf("start") >= 0) {
             LOL.race.drawBuffer = [];
 
-            setTimeout(LOL.race.showRace, 100);
+            setTimeout(LOL.race.showRace, 1000);
 
             LOL.race.drawRect(0,0, LOL.width, LOL.height);
             
-            LOL.race.drawImage(LOL.backgroundSrc, 150, -500);
+            LOL.race.drawImage(LOL.race.backgroundSrc, -150, -500);
                 
             LOL.framenumber++;
 
@@ -603,7 +633,7 @@ LOL.race = {
 
                 if (LOL.countdown === 0){
                     LOL.race.drawText("GO", (LOL.width /2), 350, "bold 72px sans-serif", "center", "black", "black");
-                    LOL.race.status = "started";
+                    LOL.race.status = "started";  
                 }
             }
 
@@ -614,7 +644,7 @@ LOL.race = {
             for(var userId in LOL.users) {
                 try {
                     var nameText = LOL.users[userId].name + (LOL.users[userId].position !== null ? " ("+LOL.users[userId].position+")":"");
-                    LOL.race.drawText(nameText, 100, LOL.users[userId].y, "bold 20px sans-serif", "left", "black", "black");
+                    LOL.race.drawText(nameText, 100, (LOL.users[userId].y+55), "bold 20px sans-serif", "left", "black", "black");
                     LOL.race.drawImage(LOL.users[userId].imageSrc, LOL.users[userId].x, LOL.users[userId].y);
                 } catch(e) {
                     console.log(LOL.users);
@@ -625,12 +655,12 @@ LOL.race = {
                     LOL.race.playersFinished++;                
                     LOL.users[userId].playing = false;
                     LOL.users[userId].position = LOL.nextPosition;
-                    LOL.socket.emit('playerFinished', {
+                    io.sockets.emit('playerFinished', {
                         'username': userId,
                         'position': LOL.nextPosition++
                     });
 
-                    LOL.socket.emit('playerState', {
+                    io.sockets.emit('playerState', {
                         'username': userId,
                         'state': 'winner',
                         'position': '1st',
@@ -642,7 +672,7 @@ LOL.race = {
                     if(LOL.race.playersFinished >= LOL.race.numWinners) {
                         for(var userId in LOL.users) {
                             if(LOL.users[userId].playing === true) {
-                                LOL.socket.emit('playerState', {
+                                io.sockets.emit('playerState', {
                                     'username': userId,
                                     'state': 'gameover'
                                 });

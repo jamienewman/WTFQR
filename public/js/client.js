@@ -1,18 +1,18 @@
-WTF.socket.on('connect', function (data){
+LOL.socket.on('connect', function (data){
 
     
-    WTF.socket.emit('setChannel', {
+    LOL.socket.emit('setChannel', {
         'channelName': 'Race'
     });
 
-    WTF.socket.on('playerFinish', function(data) {
-        if(data.username === WTF.username) {
-            WTF.playerFinish(data.position);
+    LOL.socket.on('playerFinish', function(data) {
+        if(data.username === LOL.username) {
+            LOL.playerFinish(data.position);
         }
     });
 
-    WTF.socket.on('playerState', function(data) {
-        if(data.username === WTF.username) {
+    LOL.socket.on('playerState', function(data) {
+        if(data.username === LOL.username) {
             switch(data.state) {
                 case "winner":
                     break;
@@ -31,43 +31,42 @@ WTF.socket.on('connect', function (data){
         }
     });
 
-    WTF.socket.on('resetRace', function() {
-            location.href('/join');
-        });
+    LOL.socket.on('resetRace', function() {
+        location.href('/join');
     });
 });
 
-WTF.controls = {
+LOL.controls = {
     lastTouchX: 0,
     lastTouchDate: {},
 
     init: function() {
 
         $('.mobileui').on('touchstart', function(e) {
-            WTF.controls.lastTouchX = e.touches[0].pageX;
-            WTF.controls.lastTouchDate = new Date();
+            LOL.controls.lastTouchX = e.touches[0].pageX;
+            LOL.controls.lastTouchDate = new Date();
 
             return false;
         });
 
         $('.mobileui').on('touchmove', function(e) {
-            var timeDiff = new Date() - WTF.controls.lastTouchDate;
+            var timeDiff = new Date() - LOL.controls.lastTouchDate;
 
-            if(WTF.controls.lastTouchX - e.touches[0].pageX > 50 && timeDiff < 20) {
-                WTF.socket.emit('buttons', {'userId': WTF.username, 'foot': 'right'});
-            } else if(e.touches[0].pageX - WTF.controls.lastTouchX > 50 && timeDiff < 20) {
-                WTF.socket.emit('buttons', {'userId': WTF.username, 'foot': 'left'});
+            if(LOL.controls.lastTouchX - e.touches[0].pageX > 50 && timeDiff < 20) {
+                LOL.socket.emit('buttons', {'userId': LOL.username, 'foot': 'right'});
+            } else if(e.touches[0].pageX - LOL.controls.lastTouchX > 50 && timeDiff < 20) {
+                LOL.socket.emit('buttons', {'userId': LOL.username, 'foot': 'left'});
             }
 
-            WTF.controls.lastTouchX = e.touches[0].pageX;
-            WTF.controls.lastTouchDate = new Date();
+            LOL.controls.lastTouchX = e.touches[0].pageX;
+            LOL.controls.lastTouchDate = new Date();
 
             return false;
         });
     }
 };
 
-WTF.playerFinish = function(position) {
+LOL.playerFinish = function(position) {
     if(position !== null) {
         $('body.mobileui').attr('class', "mobileui winner position"+position);
         $('.mobile').html('<p>You came <strong>'+position+''+ord(position)+'</strong>!</p>');    
@@ -75,11 +74,11 @@ WTF.playerFinish = function(position) {
 };
 
 if($('body').attr('id') !== "") {
-    WTF.username = $('body').attr('id');
+    LOL.username = $('body').attr('id');
 
-    WTF.socket.emit('playerJoin', {
-        'username': WTF.username
+    LOL.socket.emit('playerJoin', {
+        'username': LOL.username
     });
 
-    WTF.controls.init();
+    LOL.controls.init();
 }
