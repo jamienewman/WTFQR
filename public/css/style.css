@@ -1,9 +1,11 @@
-html,body{min-height:100%}
+html,body{height:100%}
 body{padding:50px 0;font:14px "Lucida Grande",Helvetica,Arial,sans-serif;background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #e9e9e9), color-stop(1, #fff));background:-webkit-linear-gradient(top, #e9e9e9 0%, #fff 100%);background:-moz-linear-gradient(top, #e9e9e9 0%, #fff 100%);background:-o-linear-gradient(top, #e9e9e9 0%, #fff 100%);background:-ms-linear-gradient(top, #e9e9e9 0%, #fff 100%);background:linear-gradient(top, #e9e9e9 0%, #fff 100%);background:#fcfcfc}
 body.mobileui{width:100%;height:100%;background:#000;vertical-align:middle;margin:0;padding:0;text-align:center;}
-body.mobileui p{display:block;height:100%;color:#fff;vertical-align:middle;font:5em "Lucida Grande",Helvetica,Arial,sans-serif}
+body.mobileui p{height:100%;color:#fff;font:5em "Lucida Grande",Helvetica,Arial,sans-serif}
 body.mobileui.playing{background:#0f0;}
-body.mobileui.playing p{color:#000}
+body.mobileui.playing div.mobile{width:100%;height:100%}
+body.mobileui.playing p{color:#000;margin:0;padding:0;width:100%;height:100%;background:#eee;display:block}
+body.mobileui.playing a{width:50%;display:inline-block;color:#000;margin:0;padding:1em 0}
 body.mobileui.gameover{background:#f00}
 body.mobileui.winner.position1{background:#d9d919}
 body.mobileui.winner.position2{background:#e6e8fa}
@@ -18,7 +20,6 @@ h1{font-size:60px;font-weight:bold;margin:0 0 30px;text-shadow:2px 2px 3px #fff;
 .controls margin 0auto{-webkit-box-orient:horizontal;-moz-box-orient:horizontal;-ms-box-orient:horizontal;box-orient:horizontal;-webkit-box-align:center;-moz-box-align:center;-ms-box-align:center;box-align:center;-webkit-box-pack:center;-moz-box-pack:center;-ms-box-pack:center;box-pack:center;-webkit-border-radius:5px;border-radius:5px}
 .controls a{text-decoration:none;display:inline-block;padding:10% 0;width:50%;margin:2.5% 0 0 0;color:#252525;font-size:18px;text-shadow:1px 1px 2px #ccc}
 .controls a img{margin:0;padding:0}
-.left,.right{display:none}
 .home{text-align:center;width:45%;margin:0 auto;}
 .home p{font-size:24px;margin:0 0 30px;text-shadow:2px 2px 3px #fff;color:#f00}
 .home img{-webkit-box-shadow:0 40px 46px -6px #ccc;box-shadow:0 40px 46px -6px #ccc;border:1px solid #fcfcfc}

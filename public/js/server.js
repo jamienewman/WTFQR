@@ -1,44 +1,30 @@
 var LOL = LOL || {};
 
-LOL.preloadedAssetCount = 0;
-LOL.preloadedAssetCountLoaded = 0;
 LOL.preloadedAssets = {};
 LOL.canvas = null;
 LOL.canvasData = [];
 LOL.timer = {};
 LOL.running = false;
 
-LOL.preloadAsset = function(imageURL) {
-    var preloadedImage = $('<img/>');
-    (function(preloadedImage, imageURL) {
-        $(preloadedImage).on('load', function() {
-            LOL.preloadedAssets[imageURL] = $(preloadedImage);
-            LOL.preloadedAssetCountLoaded++;
-        });
-    }($(preloadedImage),imageURL));
-    $(preloadedImage).attr('src', imageURL);
-};
+LOL.preloadAssets = function(sources, callback) {
+    LOL.preloadedAssets = {};
 
-LOL.preloadAssets = function(imageURLs) {
-    LOL.preloadedAssetCount = (imageURLs.length-1);
-    for(var i = 0; i < imageURLs.length; i++) {
-        if(imageURLs[i] !== "") {
-            LOL.preloadAsset(imageURLs[i]);
-        }
+    var loadedImages = 0;
+    var numImages = 0;
+    
+    for(var src in sources) {
+        numImages++;
     }
-    LOL.timer = window.setInterval(function(){
-        if(LOL.preloadedAssetCount === LOL.preloadedAssetCountLoaded) {
-            clearInterval(LOL.timer);
-            LOL.setupCanvas();
-        }
-    },100);
-};
 
-LOL.getAsset = function(imageURL) {
-    //return $(LOL.preloadedAssets[imageURL]);
-    var i = new Image();
-    i.src = imageURL;
-    return i;
+    for(var src in sources) {
+        LOL.preloadedAssets[src] = new Image();
+        LOL.preloadedAssets[src].onload = function() {
+            if(++loadedImages >= numImages) {
+                callback();
+            }
+        };
+        LOL.preloadedAssets[src].src = sources[src];
+    }
 };
 
 LOL.setupCanvas = function() {
@@ -47,6 +33,8 @@ LOL.setupCanvas = function() {
         
         LOL.width = 810;
         LOL.height = 1100;
+
+        LOL.updateCanvas();
     }
 };
 
@@ -58,19 +46,15 @@ LOL.updateCanvas = function() {
     if(typeof LOL.ctx !== "undefined") {
         requestAnimationFrame(LOL.updateCanvas);
 
-        console.log('draw:', LOL.canvasData);
-
         LOL.clearCanvas();
 
         for(var i=0; i<LOL.canvasData.length; i++) {
             if(LOL.canvasData[i].type === "text") {
                 LOL.drawText(LOL.canvasData[i].text,LOL.canvasData[i].x,LOL.canvasData[i].y,LOL.canvasData[i].font,LOL.canvasData[i].textAlign,LOL.canvasData[i].fillStyle,LOL.canvasData[i].strokeStyle);
             } else if (LOL.canvasData[i].type === "image") {
-                LOL.drawImage(LOL.canvasData[i].imageURL, LOL.canvasData[i].x, LOL.canvasData[i].y, LOL.canvasData[i].width, LOL.canvasData[i].height);
+                LOL.drawImage(LOL.canvasData[i].imageId, LOL.canvasData[i].x, LOL.canvasData[i].y, LOL.canvasData[i].width, LOL.canvasData[i].height);
             } else if (LOL.canvasData[i].type === "rect") {
                 LOL.drawRect(LOL.canvasData[i].x, LOL.canvasData[i].y, LOL.canvasData[i].width, LOL.canvasData[i].height);
-            } else if (LOL.canvasData[i].type === "qrImage") {
-                LOL.ctx.drawImage(LOL.qrImage, LOL.canvasData[i].x, LOL.canvasData[i].y, LOL.canvasData[i].width, LOL.canvasData[i].height);
             }
         }
     }
@@ -84,34 +68,23 @@ LOL.drawText = function(text,x,y,font,textAlign,fillStyle,strokeStyle) {
     LOL.ctx.fillText(text, x, y);
 };
 
-LOL.drawImage = function(imageURL,x,y,width,height) {
-    if(typeof LOL.getAsset(imageURL) === "undefined") {
-        var image = $('<img/>');
-        (function() { 
-            $(image).on('load', function() {
-                if(typeof width !== "undefined" && height !== "undefined") {
-                    LOL.ctx.drawImage(image, x, y, width, height);
-                } else {
-                    LOL.ctx.drawImage(image, x, y);
-                }
-            });
-        }(image,x,y,width,height));
-        $(image).attr('src', imageURL);
+LOL.drawImage = function(imageId,x,y,width,height) {
+
+    if(typeof width !== "undefined" && height !== "undefined") {
+        console.log(LOL.preloadedAssets[imageId]);
+        LOL.ctx.drawImage(LOL.preloadedAssets[imageId], x, y, width, height);
     } else {
-        if(typeof width !== "undefined" && height !== "undefined") {
-            LOL.ctx.drawImage(LOL.getAsset(imageURL), x, y, width, height);
-        } else {
-            LOL.ctx.drawImage(LOL.getAsset(imageURL), x, y);
-        }
+        console.log(imageId);
+        LOL.ctx.drawImage(LOL.preloadedAssets[imageId], x, y);
     }
 };
 
 LOL.drawRect = function(x,y,width,height){
-    LOL.ctx.beginPath();
+    /*LOL.ctx.beginPath();
     LOL.ctx.rect(x,y,width,height);
     LOL.ctx.closePath();
     LOL.ctx.fill();
-    LOL.ctx.stroke();
+    LOL.ctx.stroke();*/
 };
 
 LOL.socket.on('connect', function (data){
@@ -128,10 +101,14 @@ LOL.socket.on('connect', function (data){
         }
     });
 
+    LOL.socket.on('playerPhoto', function(data){
+        
+    });
+
 });
 
 $(window).bind('keypress', function(e) {
-    console.log('key',e.keyCode);
+        console.log('key',e.keyCode);
     var code = (e.keyCode ? e.keyCode : e.which);
     if(code >= 49 && code <= 52) { 
         var player = code - 49;

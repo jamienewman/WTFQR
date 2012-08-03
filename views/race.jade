@@ -22,16 +22,9 @@ script(src="/socket.io/socket.io.js")
 script(src="/js/common.js")
 script(src="/js/server.js")
 script
-	var imagesToPreload = [!{imageURLs}];
 	var LOL = LOL || {};
 
-	LOL.userIds = [!{imageURLs}]
-
-	LOL.qrImage = new Image();
-
-	LOL.qrImage.src = '!{qrImageSrc}';
-
-	LOL.preloadAssets(imagesToPreload);
+	LOL.preloadAssets(!{images}, LOL.setupCanvas);
 
 	var _gaq = _gaq || [];
 	_gaq.push(['_setAccount', 'UA-33688379-1']);

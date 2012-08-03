@@ -5,9 +5,9 @@ LOL.socket.on('connect', function (data){
         'channelName': 'Race'
     });
 
-    LOL.socket.on('playerFinish', function(data) {
+    LOL.socket.on('playerFinished', function(data) {
         if(data.username === LOL.username) {
-            LOL.playerFinish(data.position);
+            LOL.playerFinished(data.position);
         }
     });
 
@@ -22,7 +22,18 @@ LOL.socket.on('connect', function (data){
                     break;
                 case "playing":
                     $('body.mobileui').attr('class', "mobileui playing");
-                    $('.mobile p').text('Swipe me, really fast.');
+                    //$('.mobile p').text('Swipe me, really fast.');
+                    $('.mobile p').html('<a class="left" href="#">L</a><a class="right" href="#">R</a>');
+                    $('.left, .right').on('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        LOL.socket.emit('buttons', {'userId': LOL.username, 'foot': $(this).attr('class')});
+
+                        return false;
+                    });    
+                    FastClick(document.querySelector('.left'));
+                    FastClick(document.querySelector('.right'));
                     break;
                 default:
                     $('body.mobileui').attr('class', "mobileui");
@@ -32,7 +43,7 @@ LOL.socket.on('connect', function (data){
     });
 
     LOL.socket.on('resetRace', function() {
-        location.href('/join');
+        location.href = '/join';
     });
 });
 
@@ -40,8 +51,9 @@ LOL.controls = {
     lastTouchX: 0,
     lastTouchDate: {},
 
-    init: function() {
+    init: function() {    
 
+        /*
         $('.mobileui').on('touchstart', function(e) {
             LOL.controls.lastTouchX = e.touches[0].pageX;
             LOL.controls.lastTouchDate = new Date();
@@ -63,10 +75,11 @@ LOL.controls = {
 
             return false;
         });
+*/
     }
 };
 
-LOL.playerFinish = function(position) {
+LOL.playerFinished = function(position) {
     if(position !== null) {
         $('body.mobileui').attr('class', "mobileui winner position"+position);
         $('.mobile').html('<p>You came <strong>'+position+''+ord(position)+'</strong>!</p>');    

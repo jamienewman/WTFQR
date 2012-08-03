@@ -12,7 +12,6 @@ var express = require('express')
   , FacebookStrategy = require('passport-facebook').Strategy
   , TwitterStrategy = require('passport-twitter').Strategy
   , io = require('socket.io')
-  , os = require('os')
   , gzippo = require('gzippo');
 
 
@@ -23,7 +22,7 @@ var app = express.createServer()
 var numPlayers = 8;
 
 //users = {"Twitter98617177":{"name":"Jamie Collins","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=Collins1892"},"Facebook505411268":{"name":"Sukhdev Singh Shah","photoSrc":"http://graph.facebook.com/sukhdev.shah/picture"},"Twitter36623029":{"name":"Jasal Vadgama","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=donofkarma"}};
-initialUsers = {
+var initialUsers = {
           "Test1": {"name":"Jamie Newman","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=jamienewman"},
           "Test2":{"name":"Jamie Collins","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=Collins1892"},
           "Test3":{"name":"Sukhdev Singh Shah","photoSrc":"http://graph.facebook.com/sukhdev.shah/picture"},
@@ -35,8 +34,8 @@ initialUsers = {
 //users["Twitter15377059"] = {"name":"Jamie Newman","photoSrc":"http://api.twitter.com/1/users/profile_image?screen_name=jamienewman"};
 
 var initUsers = function() {
-  if(initialUsers !== null) {
-    users = initialUsers;
+  for(var i in initialUsers) {
+    users[i] = JSON.parse(JSON.stringify(initialUsers[i]));
   }
 };
 
@@ -65,7 +64,7 @@ app.configure(function(){
   app.use(passport.initialize());
   app.use(passport.session());
   app.use(express.cookieParser()); 
-  app.use(express.session({ secret: 'afhf9q8h21ejhdaskjdlasjda'}));
+  app.use(express.session({ secret: 'amsid127eyh@wqdoo' }));
   app.use(app.router);
 
   var oneYear = 31557600000;
@@ -99,17 +98,12 @@ app.get('/', function(req, res){
 
   encoder.toDataURL('http://' + req.headers.host + '/join', function(err, png){
 
-    for(var i = 0, imageString = "''"; i < LOL.race.imageURLs.length; i++) {
-      imageString += ",'"+LOL.race.imageURLs[i]+"'";
-    }
+    LOL.race.images.qr = png;
 
     res.render('race', {
       title: 'LBi Olympics',
-      imageURLs: imageString,
-      qrImageSrc: png
+      images: JSON.stringify(LOL.race.images)
     });
-
-    LOL.race.init();
     
   });
 });
@@ -118,17 +112,12 @@ app.post('/', function(req, res){
 
   encoder.toDataURL('http://' + req.headers.host + '/join', function(err, png){
 
-    for(var i = 0, imageString = "''"; i < LOL.race.imageURLs.length; i++) {
-      imageString += ",'"+LOL.race.imageURLs[i]+"'";
-    }
+    LOL.race.images.qr = png;
 
     res.render('race', {
       title: 'LBi Olympics',
-      imageURLs: imageString,
-      qrImageSrc: png
+      images: JSON.stringify(LOL.race.images)
     });
-
-    LOL.race.init();
     
   });
 });
@@ -294,33 +283,12 @@ io.sockets.on('connection', function (socket){
   });
 
   socket.on('buttons', function (data){
-    console.log(data);
-
-    socket.broadcast.to(data.channelName).emit("raceData", data);
-
-  });
-
-  socket.on('resetRace', function (data){
-    console.log('Resetting');
-
-    initUsers();
-
-    socket.broadcast.to(data.channelName).emit("resetRace");
-
+    LOL.race.registerMove(data.userId, data.foot);
   });
 
 });
 
 var LOL = LOL || {};
-
-LOL.width = 810;
-LOL.height = 1100;
-LOL.numPlayers = numPlayers;
-LOL.users = users;
-LOL.remainingPlayers = LOL.numPlayers;
-for(var i in LOL.users) {
-    LOL.remainingPlayers--;
-}
 
 LOL.race = {
     stage: "",
@@ -328,31 +296,39 @@ LOL.race = {
     playersFinished: 0,
     status: "",
     debugMode: true,
-    backgroundSrc: '/img/bg-full.png',
-    imageURLs: [
-        '/img/bg-full.png',
-        '/img/runner1.png',
-        '/img/runner1_2.png',
-        '/img/runner2.png',
-        '/img/runner2_2.png',
-        '/img/runner3.png',
-        '/img/runner3_2.png',
-        '/img/runner4.png',
-        '/img/runner4_2.png'
-    ],
+    timer: null,
+    images: {
+        bg: '/img/bg-full.png',
+        r1: '/img/runner1.png',
+        r1s2: '/img/runner1_2.png',
+        r2: '/img/runner2.png',
+        r2s2: '/img/runner2_2.png',
+        r3: '/img/runner3.png',
+        r3s2: '/img/runner3_2.png',
+        r4: '/img/runner4.png',
+        r4s2: '/img/runner4_2.png'
+    },
     drawBuffer: [],
 
     sendDrawBuffer: function() {
-      //console.log(LOL.race.drawBuffer);
       console.log('drawing');
-      io.sockets.emit('raceData', {
-        canvasData: LOL.race.drawBuffer
-      });
+      console.log(LOL.race.drawBuffer);
+      if(typeof io.sockets !== "undefined") {
+        io.sockets.emit('raceData', {
+          canvasData: LOL.race.drawBuffer
+        });
+      }
     },
 
     reset: function() {
-        LOL.players = null;
         io.sockets.emit('resetRace', {});
+        users = {};
+        console.log("USERSBR:");
+        console.log(users);
+        initUsers();
+        console.log("USERS:");
+        console.log(users);
+        LOL.race.init();
     },
 
     stages: {
@@ -382,7 +358,9 @@ LOL.race = {
             LOL.race.showRace();
         },
         podium: function() {
-            LOL.race.podium.init();
+            LOL.race.setupNewRace();
+            LOL.race.setupPlayers();
+            LOL.race.showPodium();
         }
     },
 /*
@@ -414,33 +392,44 @@ LOL.race = {
 */
     registerMove: function(userId, foot) {
         if(LOL.users[userId].playing === true) {
+            console.log("RACING USER: "+userId);
+            console.log("RACING USER X: "+LOL.users[userId].x);
             if (LOL.race.status !== "started"){
                 return;
             }
 
             if(foot == 'left') {
-                if(LOL.users[userId].imageSrc.indexOf('_2.png') >= 0) {
-                    LOL.users[userId].imageSrc = LOL.users[userId].imageSrc.replace('_2.png', '.png');
+                if(LOL.users[userId].imageId.indexOf('s2') >= 0) {
+                    LOL.users[userId].imageId = LOL.users[userId].imageId.replace('s2', '');
                 }
             }
 
             if(foot == 'right') {
-                if(LOL.users[userId].imageSrc.indexOf('_2.png') < 0) {
-                    LOL.users[userId].imageSrc = LOL.users[userId].imageSrc.replace('.png', '_2.png');
+                if(LOL.users[userId].imageId.indexOf('s2') < 0) {
+                    LOL.users[userId].imageId = LOL.users[userId].imageId + 's2';
                 }
             }      
 
             LOL.users[userId].x += LOL.steps;
+
+            console.log("RACING USER NEW X: "+LOL.users[userId].x);
         }
     },
 
     init: function() {
-      console.log('init');
-      if(io.sockets.clients().length > 0) {
-        LOL.race.showWaiting();
-      } else {
-        setTimeout(LOL.race.init, 500);
+      LOL.competition = {};
+      LOL.race.drawBuffer = [];
+      LOL.width = 810;
+      LOL.height = 1100;
+      LOL.numPlayers = numPlayers;
+      LOL.users = users;
+      console.log("LOL.USERS:");
+      console.log(LOL.users);
+      LOL.remainingPlayers = LOL.numPlayers;
+      for(var i in LOL.users) { 
+          LOL.remainingPlayers--;
       }
+      LOL.race.showWaiting();
     },
 
     start: function() {
@@ -488,7 +477,7 @@ LOL.race = {
         for(var userId in LOL.users) {
             LOL.users[userId].x = LOL.xStart;
             LOL.users[userId].y = (LOL.yStart + (LOL.yOffset * i++));
-            LOL.users[userId].imageSrc = 'img/runner'+i+'.png';
+            LOL.users[userId].imageId = 'r'+i+'';
             LOL.users[userId].playing = true;
             LOL.users[userId].position = null;
             io.sockets.emit('playerState', {
@@ -510,34 +499,24 @@ LOL.race = {
         });
     },
 
-    drawImage: function(imageSrc, x, y, width, height) {
+    drawImage: function(imageId, x, y, width, height) {
         if(width === null && height === null) {
             LOL.race.drawBuffer.push({
                 type: "image",
-                imageURL: imageSrc,
+                imageId: imageId,
                 x: x,
                 y: y
             });
         } else {
             LOL.race.drawBuffer.push({
                 type: "image",
-                imageURL: imageSrc,
+                imageId: imageId,
                 x: x,
                 y: y,
                 width: width,
                 height: height
             });
         }
-    },
-
-    drawQRImage: function(x, y, width, height) {
-        LOL.race.drawBuffer.push({
-            type: "qrImage",
-            x: x,
-            y: y,
-            width: width,
-            height: height
-        });
     },
 
     drawText: function(text,x,y,font,textAlign,fillStyle,strokeStyle) {
@@ -558,26 +537,33 @@ LOL.race = {
         console.log(LOL.remainingPlayers);
         if(LOL.remainingPlayers > 0) {
 
-            setTimeout(LOL.race.showWaiting, 1000);
+            setTimeout(LOL.race.showWaiting, 100);
 
             LOL.race.drawBuffer = [];
 
             LOL.race.drawRect(0,0, LOL.width, LOL.height);
 
-            LOL.race.drawImage(LOL.race.backgroundSrc, -150, 0, null, null);
-            LOL.race.drawQRImage(265, 80, 300, 300);
+            LOL.race.drawImage('bg', -150, 0, null, null);
+            LOL.race.drawImage('qr', 265, 80, 300, 300);
+
+            /*
 
             var xPos = 200,
                 yMultiplier = 1;
                 
+            align = "right";
 
             for(var userId in LOL.users) {
                 if(yMultiplier > 4) {
                     yMultiplier = 1;
                     xPos = 580;
+                    align = "left";
                 }
-                LOL.race.drawImage(LOL.users[userId].photoSrc, xPos, (80 * yMultiplier++), 50, 50);
+                //LOL.race.drawImage(LOL.users[userId].photoSrc, xPos, (80 * yMultiplier++), 50, 50);
+                //LOL.race.drawText(LOL.users[userId].name, xPos, (80 * yMultiplier++), "bold 36px sans-serif", align, "black", "black");
             }
+
+            */
 
             LOL.race.drawText("Waiting for "+LOL.remainingPlayers+ " players", (LOL.width /2), 450, "bold 36px sans-serif", "center", "black", "black");
         } else {
@@ -591,15 +577,16 @@ LOL.race = {
         if(LOL.canvasY <= LOL.canvasMaxY) {
             LOL.race.drawBuffer = [];
 
-            setTimeout(LOL.race.showOpeningCeremony, 1000);
+            setTimeout(LOL.race.showOpeningCeremony, 100);
 
             LOL.race.drawRect(0,0, LOL.width, LOL.height);
             
-            LOL.race.drawImage(LOL.race.backgroundSrc, -150, parseInt("-"+(++LOL.canvasY), 10));
+            LOL.race.drawImage('bg', -150, parseInt("-"+(++LOL.canvasY), 10));
+
+            LOL.race.sendDrawBuffer();
         } else {
             LOL.race.nextStage();
         }
-        LOL.race.sendDrawBuffer();
         
         /*
         var themeAudio = document.getElementById('audio');
@@ -612,11 +599,11 @@ LOL.race = {
         if(LOL.race.status.indexOf("start") >= 0) {
             LOL.race.drawBuffer = [];
 
-            setTimeout(LOL.race.showRace, 1000);
+            setTimeout(LOL.race.showRace, 100);
 
             LOL.race.drawRect(0,0, LOL.width, LOL.height);
             
-            LOL.race.drawImage(LOL.race.backgroundSrc, -150, -500);
+            LOL.race.drawImage('bg', -150, -500);
                 
             LOL.framenumber++;
 
@@ -637,7 +624,7 @@ LOL.race = {
                 }
             }
 
-            if (LOL.countdown >= 0){
+            if (LOL.framenumber % 10 === 0 && LOL.countdown >= 0){
                 LOL.countdown--;
             }
 
@@ -645,7 +632,7 @@ LOL.race = {
                 try {
                     var nameText = LOL.users[userId].name + (LOL.users[userId].position !== null ? " ("+LOL.users[userId].position+")":"");
                     LOL.race.drawText(nameText, 100, (LOL.users[userId].y+55), "bold 20px sans-serif", "left", "black", "black");
-                    LOL.race.drawImage(LOL.users[userId].imageSrc, LOL.users[userId].x, LOL.users[userId].y);
+                    LOL.race.drawImage(LOL.users[userId].imageId, LOL.users[userId].x, LOL.users[userId].y);
                 } catch(e) {
                     console.log(LOL.users);
                     console.log(userId);
@@ -687,7 +674,129 @@ LOL.race = {
             }
         }
         LOL.race.sendDrawBuffer();
+    },
+    showPodium: function() {
+      LOL.timer = setTimeout(LOL.race.showPodium, 100);
+
+      LOL.race.drawBuffer = [];
+
+      LOL.race.drawRect(0,0, LOL.width, LOL.height);
+      
+      LOL.race.drawImage('bg', -150, -500);
+
+      var pos = 1;
+
+      for(var userId in LOL.users) {
+        var nameText = pos++ + ". " + LOL.users[userId].name;
+        LOL.race.drawText(nameText, 100, (LOL.users[userId].y+55), "bold 20px sans-serif", "left", "black", "black");
+      }
+
+      LOL.race.sendDrawBuffer();
+
+      setTimeout(function() {
+        clearTimeout(LOL.timer);
+        LOL.race.reset();
+      }, 5000);
     }
+    /*podium: {
+        
+        carpet: {},
+        background: {},
+        canvasY: 0,
+        canvasMaxY: 362,
+        podiumXY: [[425,260],[310,310],[540,340]],
+        landingFx : {},
+
+        init: function() {
+          
+            WTF.users = WTqF.competition.getRacers();
+
+            WTF.clearCanvas();
+
+            WTF.rect(0,0, WTF.width, WTF.height);
+
+            WTF.ctx.drawImage(WTF.background, 0, 0);
+            
+            WTF.race.podium.audio.src="/audio/cartoonbombdrop.wav";
+          WTF.race.podium.audio.play();
+
+            WTF.race.podium.carpet = new Image();
+            WTF.race.podium.carpet.onload = function () {
+                WTF.ctx.drawImage(WTF.race.podium.carpet, 0, 480);
+            };
+            WTF.race.podium.carpet.src = '/img/red-carpet.png';
+            WTF.race.podium.background = new Image();
+            WTF.race.podium.background.onload = function () {
+                WTF.ctx.drawImage(WTF.race.podium.background, 300, WTF.race.podium.canvasMaxY);
+                WTF.race.podium.animate();
+            };
+            WTF.race.podium.background.src = '/img/podium.png';
+
+            WTF.ctx.save();
+
+        },
+
+        animate: function() {
+          
+            if (WTF.race.podium.canvasY <= WTF.race.podium.canvasMaxY) {
+                WTF.ctx.rotate(0);
+                requestAnimationFrame(WTF.race.podium.animate);
+                WTF.clearCanvas();
+
+                WTF.rect(0,0, WTF.width, WTF.height);
+
+                WTF.ctx.drawImage(WTF.background, 0, parseInt("-"+WTF.canvasMaxY));
+                WTF.ctx.drawImage(WTF.race.podium.carpet, 0, 480);
+                WTF.race.podium.canvasY = WTF.race.podium.canvasY + 7;
+                if (WTF.race.podium.canvasY >= 360) {
+                    WTF.ctx.translate(-100, 140);
+                    WTF.ctx.rotate(-0.23);
+                }
+                WTF.ctx.drawImage(WTF.race.podium.background, 300, parseInt(WTF.race.podium.canvasY, 10));
+            } else {
+              WTF.race.podium.audio.pause();
+              WTF.race.podium.audio.src="/audio/ball_bounce.wav";
+              WTF.race.podium.audio.play();
+                WTF.ctx.restore();
+                WTF.race.podium.drawImages();
+            }
+        },
+
+        drawImages: function () {
+            var i = 0;
+
+            for(var userId in WTF.users) {
+                var podiumPlayer = new Image();
+                var positionIndex = WTF.users[userId].position-1;
+
+                (function (podiumPlayer,positionIndex) {
+                    podiumPlayer.onload = function () {
+                        WTF.ctx.drawImage(podiumPlayer, WTF.race.podium.podiumXY[positionIndex][0], WTF.race.podium.podiumXY[positionIndex][1], 90, 90);
+                    };
+                }(podiumPlayer,positionIndex));               
+                podiumPlayer.src = WTF.users[userId].photo.src;
+
+                i++;
+            }
+            
+            WTF.race.podium.playApplause();
+            
+        },
+        
+        playApplause: function () {
+          WTF.race.podium.audio.addEventListener("ended", function() {
+              WTF.race.podium.audio.src = "/audio/applause-8.wav";
+              WTF.race.podium.audio.play();
+              WTF.race.podium.audio.addEventListener("ended", function() {
+                WTF.race.podium.audio.pause();
+            });
+        });
+
+            window.setTimeout(WTF.race.reset, 5000);
+        }
+        
+    }
+    */
 };
 
 function Competition(numPlayers,userData) {
@@ -746,3 +855,5 @@ Competition.prototype.setWinner = function (userId,stage,position) {
         finalState[userId].position = position;
     }
 };
+
+LOL.race.init();
